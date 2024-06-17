@@ -9,7 +9,10 @@ import Landing from '../screen/landing/Landing';
 const Stack = createStackNavigator();
 export default function AppNavigation() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}>
       <Stack.Screen name="landing" component={Landing} />
       <Stack.Screen name="signup" component={SignUp} />
       <Stack.Screen name="login" component={Login} />

@@ -3,7 +3,7 @@ import React from 'react';
 
 const Landing = () => {
   return (
-    <View>
+    <View style={{flex: 1, backgroundColor: '#0C0C0C'}}>
       <Text>landing</Text>
     </View>
   );
