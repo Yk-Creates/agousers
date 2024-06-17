@@ -43,13 +43,14 @@ const Landing = ({navigation}: any) => {
         {/* button */}
 
         <TouchableOpacity
-          style={{width: 50, height: 50}}
+          style={{width: 100, height: 50}}
           onPress={() => navigation.navigate('login')}>
           <View
             style={{
               backgroundColor: 'white',
               padding: 10,
               borderRadius: 200,
+              alignItems: 'center',
             }}>
             <Image
               style={{width: 30, height: 30}}
