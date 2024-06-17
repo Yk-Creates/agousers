@@ -7,6 +7,7 @@ import {
   Text,
   View,
   TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
 
 import useGetTextData from '../../hooks/useGetTestData';
@@ -31,7 +32,7 @@ const Landing = ({navigation}: any) => {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* logo */}
       <View style={{alignItems: 'center', marginTop: 100}}>
         <View>
@@ -43,7 +44,7 @@ const Landing = ({navigation}: any) => {
         {/* button */}
 
         <TouchableOpacity
-          style={{width: 100, height: 50}}
+          style={{width: 80, height: 30}}
           onPress={() => navigation.navigate('login')}>
           <View
             style={{
@@ -66,7 +67,7 @@ const Landing = ({navigation}: any) => {
           source={require('../../assets/images/bottomCity.png')}
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
