@@ -13,8 +13,6 @@ export const getData = async () => {
   return response.data;
 };
 
-
-
 // // Add a request interceptor to include the token in the headers
 // apiClient.interceptors.request.use(
 //   async config => {

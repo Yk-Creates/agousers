@@ -17,8 +17,12 @@ const Landing = ({navigation}: any) => {
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
+      <View style={styles.loading}>
         <ActivityIndicator size="large" color="#ffffff" />
+        <Text
+          style={{color: 'white', fontFamily: 'Poppins-Medium', marginTop: 10}}>
+          Loading
+        </Text>
       </View>
     );
   }
@@ -79,6 +83,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#0C0C0C',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  loading: {
+    flex: 1,
+    backgroundColor: '#0C0C0C',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   dataText: {
     color: '#000',
