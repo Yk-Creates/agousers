@@ -1,14 +1,19 @@
-import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { ActivityIndicator, Dimensions, Image, StyleSheet, Text, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import {
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+} from 'react-native';
+
 import useGetTextData from '../../hooks/useGetTestData';
 
-
-const Landing = () => {
+const Landing = ({navigation}: any) => {
   const {data, error, isLoading} = useGetTextData();
-  const navigation = useNavigation();
-  
+
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -27,31 +32,50 @@ const Landing = () => {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require('../../assets/images/ago.png')}
-        style={styles.image}
-      />
-    <TouchableOpacity onPress={() => navigation.navigate('login')}> 
+      {/* logo */}
+      <View style={{alignItems: 'center', marginTop: 100}}>
+        <View>
+          <Image
+            style={{width: 250, height: 250}}
+            source={require('../../assets/images/ago.png')}
+          />
+        </View>
+        {/* button */}
+
+        <TouchableOpacity
+          style={{width: 50, height: 50}}
+          onPress={() => navigation.navigate('login')}>
+          <View
+            style={{
+              backgroundColor: 'white',
+              padding: 10,
+              borderRadius: 200,
+            }}>
+            <Image
+              style={{width: 30, height: 30}}
+              source={require('../../assets/images/right-arrow.png')}
+            />
+          </View>
+        </TouchableOpacity>
+      </View>
+      {/* footer */}
+      <View>
         <Image
-          source={require('../../assets/images/rightarrow.png')}
-          style={styles.rightArrow}
+          style={styles.bottomImage}
+          source={require('../../assets/images/bottomCity.png')}
         />
-      </TouchableOpacity>
-      <Image
-        source={require('../../assets/images/bottom_design.png')}
-        style={styles.bottomImage}
-      />
+      </View>
     </View>
   );
 };
 
 export default Landing;
-const { width: screenWidth } = Dimensions.get('window');
+const {width: screenWidth} = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
+    backgroundColor: '#0C0C0C',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   dataText: {
@@ -63,7 +87,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   image: {
-
     width: 250,
     height: 250,
     marginBottom: 50,
@@ -75,10 +98,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   bottomImage: {
-    position: 'absolute',
-    bottom: 0,
     width: screenWidth,
-    height: 500,
+    height: 250,
     resizeMode: 'cover',
   },
 });
