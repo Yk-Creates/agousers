@@ -13,6 +13,11 @@ export const getData = async () => {
   return response.data;
 };
 
+export const login = async (phoneNo: any, password: any) => {
+  const response = await apiClient.post('/users/login', {phoneNo, password});
+  return response.data;
+};
+
 // // Add a request interceptor to include the token in the headers
 // apiClient.interceptors.request.use(
 //   async config => {
