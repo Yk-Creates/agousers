@@ -9,9 +9,9 @@ const LoginListener = ({navigation}: any) => {
       try {
         const token = await AsyncStorage.getItem('token');
         if (token) {
-          navigation.navigate('home');
+          navigation.replace('home');
         } else {
-          navigation.navigate('landing');
+          navigation.replace('landing');
         }
       } catch (error) {
         console.error('Error checking token:', error);
