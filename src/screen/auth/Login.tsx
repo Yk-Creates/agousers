@@ -16,6 +16,7 @@ import {
   ScrollView,
 } from 'react-native-gesture-handler';
 import useLogin from '../../hooks/useLogin';
+import Snackbar from 'react-native-snackbar';
 
 const Login = ({navigation}: any) => {
   const [phoneNo, setPhoneNo] = useState('');
@@ -26,14 +27,18 @@ const Login = ({navigation}: any) => {
 
   const handleSubmit = () => {
     if (!phoneNo || !password) {
-      Alert.alert('Error', 'Please enter both phone number and password');
+      Snackbar.show({
+        text: 'Fill Both the feilds.',
+        duration: Snackbar.LENGTH_SHORT,
+        backgroundColor: 'red',
+      });
       return;
     }
     login(
       {phoneNo, password},
       {
         onSuccess: () => {
-          navigation.replace('home');
+          navigation.replace('hometab');
         },
       },
     );

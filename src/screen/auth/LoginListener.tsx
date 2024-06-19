@@ -9,7 +9,7 @@ const LoginListener = ({navigation}: any) => {
       try {
         const token = await AsyncStorage.getItem('token');
         if (token) {
-          navigation.replace('home');
+          navigation.replace('hometab');
         } else {
           navigation.replace('landing');
         }

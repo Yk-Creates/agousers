@@ -14,11 +14,11 @@ import useGetTextData from '../../hooks/useGetTestData';
 
 const Landing = ({navigation}: any) => {
   const {data, error, isLoading} = useGetTextData();
-  useEffect(() => {
-    setTimeout(() => {
-      navigation.replace('login');
-    }, 1000);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     navigation.replace('login');
+  //   }, 4000);
+  // }, []);
   if (isLoading) {
     return (
       <View style={styles.loading}>
@@ -51,7 +51,7 @@ const Landing = ({navigation}: any) => {
         </View>
         {/* button */}
 
-        {/* <TouchableOpacity
+        <TouchableOpacity
           style={{width: 80, height: 30}}
           onPress={() => navigation.navigate('login')}>
           <View
@@ -66,7 +66,7 @@ const Landing = ({navigation}: any) => {
               source={require('../../assets/images/right-arrow.png')}
             />
           </View>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
       </View>
       {/* footer */}
       <View>
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   errorText: {
-    color: 'red',
+    // color: 'red',
     fontSize: 18,
   },
   image: {
