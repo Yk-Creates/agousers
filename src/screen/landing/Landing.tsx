@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -14,7 +14,11 @@ import useGetTextData from '../../hooks/useGetTestData';
 
 const Landing = ({navigation}: any) => {
   const {data, error, isLoading} = useGetTextData();
-
+  useEffect(() => {
+    setTimeout(() => {
+      navigation.replace('login');
+    }, 1000);
+  }, []);
   if (isLoading) {
     return (
       <View style={styles.loading}>
@@ -41,13 +45,13 @@ const Landing = ({navigation}: any) => {
       <View style={{alignItems: 'center', marginTop: 100}}>
         <View>
           <Image
-            style={{width: 250, height: 250}}
+            style={{width: 300, height: 300}}
             source={require('../../assets/images/ago.png')}
           />
         </View>
         {/* button */}
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={{width: 80, height: 30}}
           onPress={() => navigation.navigate('login')}>
           <View
@@ -62,7 +66,7 @@ const Landing = ({navigation}: any) => {
               source={require('../../assets/images/right-arrow.png')}
             />
           </View>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       {/* footer */}
       <View>

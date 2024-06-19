@@ -17,7 +17,7 @@ import {
 } from 'react-native-gesture-handler';
 import useLogin from '../../hooks/useLogin';
 
-const Login = ({navigation}) => {
+const Login = ({navigation}: any) => {
   const [phoneNo, setPhoneNo] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -138,11 +138,13 @@ const Login = ({navigation}) => {
               gap: 7,
             },
           ]}>
-          <Text style={{fontFamily: 'Poppins-Medium'}}>
+          <Text style={{fontFamily: 'Poppins-Medium', color: 'black'}}>
             Don't have an account?
           </Text>
           <TouchableOpacity onPress={() => navigation.navigate('register')}>
-            <Text style={{fontFamily: 'Poppins-Bold'}}>Register</Text>
+            <Text style={{fontFamily: 'Poppins-Bold', color: 'black'}}>
+              Register
+            </Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -168,6 +170,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
     padding: 10,
     paddingHorizontal: 15,
+    color: 'black',
   },
   passwordContainer: {
     flexDirection: 'row',

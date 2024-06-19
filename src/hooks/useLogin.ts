@@ -5,7 +5,7 @@ import Snackbar from 'react-native-snackbar';
 
 const useLogin = () => {
   return useMutation({
-    mutationFn: ({phoneNo, password}) => login(phoneNo, password),
+    mutationFn: ({phoneNo, password}: any) => login(phoneNo, password),
     onSuccess: async data => {
       try {
         await AsyncStorage.setItem('token', data.token);

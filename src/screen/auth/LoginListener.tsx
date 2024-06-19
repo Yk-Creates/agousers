@@ -15,7 +15,7 @@ const LoginListener = ({navigation}: any) => {
         }
       } catch (error) {
         console.error('Error checking token:', error);
-        navigation.navigate('Landing');
+        navigation.replace('landing');
       }
     };
 
