@@ -18,6 +18,18 @@ export const login = async (phoneNo: any, password: any) => {
   return response.data;
 };
 
+
+
+export const signup = async ( name : any, phoneNo : any, password : any ) => {
+  try {
+    const response = await apiClient.post('/users/register', { name, phoneNo, password });
+    return response.data;
+  } catch (error) {
+    console.error('Error during signup:', error);
+    throw error;
+  }
+};
+
 // // Add a request interceptor to include the token in the headers
 // apiClient.interceptors.request.use(
 //   async config => {

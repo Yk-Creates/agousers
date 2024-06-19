@@ -1,19 +1,18 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-  ActivityIndicator,
+  View
 } from 'react-native';
 import {
+  ScrollView,
   TextInput,
   TouchableOpacity,
-  ScrollView,
 } from 'react-native-gesture-handler';
 import useLogin from '../../hooks/useLogin';
 
@@ -25,10 +24,6 @@ const Login = ({navigation}: any) => {
   const {mutate: login, isPending, isError, error} = useLogin();
 
   const handleSubmit = () => {
-    if (!phoneNo || !password) {
-      Alert.alert('Error', 'Please enter both phone number and password');
-      return;
-    }
     login(
       {phoneNo, password},
       {

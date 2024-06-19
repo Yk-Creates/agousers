@@ -1,24 +1,45 @@
-import React, {useState} from 'react';
+import { useState } from 'react';
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  Switch,
+  View
 } from 'react-native';
 import {
+  ScrollView,
   TextInput,
   TouchableOpacity,
-  ScrollView,
 } from 'react-native-gesture-handler';
+import useSignup from '../../hooks/useSignup';
 
-const SignUp = ({navigation}: any) => {
+
+const SignUp = ({ navigation }: any) => {
+  const [name, setName] = useState('');
+  const [phoneNo, setPhoneNo] = useState('');
+  const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [agreeTerms, setAgreeTerms] = useState(false);
 
+  const { mutate: signup, isError, error , isPending,} = useSignup();
+
+  const handleSubmit = () => {
+    console.log("Submitting signup with data:", { name, phoneNo, password });
+    signup(
+      { name, phoneNo, password },
+      {
+        onSuccess: () => {
+          console.log("Signup successful");
+          navigation.replace('home');
+        },
+        onError: (error) => {
+          console.error("Signup failed with error:", error);
+        },
+      }
+    );
+  };
+  
   return (
     <SafeAreaView style={{flex: 1}}>
       <KeyboardAvoidingView
@@ -59,6 +80,8 @@ const SignUp = ({navigation}: any) => {
                 placeholder="Enter Name"
                 placeholderTextColor={'#868585'}
                 style={styles.input}
+                value={name}
+                onChangeText={setName}
               />
             </View>
 
@@ -68,6 +91,9 @@ const SignUp = ({navigation}: any) => {
                 placeholder="Enter phone number"
                 placeholderTextColor={'#868585'}
                 style={styles.input}
+                value={phoneNo}
+                onChangeText={setPhoneNo}
+                keyboardType="phone-pad"
               />
             </View>
             <View style={[styles.inputContainer, {marginTop: 10}]}>
@@ -78,6 +104,8 @@ const SignUp = ({navigation}: any) => {
                   placeholderTextColor={'#868585'}
                   style={[styles.input, {flex: 1, borderWidth: 0}]}
                   secureTextEntry={!passwordVisible}
+                  value={password}
+                  onChangeText={setPassword}
                 />
                 <TouchableOpacity
                   onPress={() => setPasswordVisible(!passwordVisible)}
@@ -102,7 +130,10 @@ const SignUp = ({navigation}: any) => {
         </ScrollView>
         <View style={{margin: 20}}>
           <TouchableOpacity
-            style={[styles.loginButton, {backgroundColor: 'black'}]}>
+          onPress={handleSubmit}
+            style={[styles.loginButton, {backgroundColor: 'black'}]}
+            
+            >
             <Text style={{fontFamily: 'Poppins-Medium', color: 'white'}}>
               Register
             </Text>
