@@ -1,3 +1,4 @@
+import DateTimePicker from '@react-native-community/datetimepicker'; // For Date Picker
 import React, { useRef, useState } from 'react';
 import {
   Animated,
@@ -12,11 +13,15 @@ import {
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 const ArrivalHome = ({route, navigation}) => {
-  const {startLat, startLong, startAdd, date} = route.params; // Receive date here
+  const {startLat, startLong, startAdd} = route.params; // Receive date here
   const [endAddress, setEndAddress] = useState('');
   const [endLatitude, setEndLatitude] = useState(null);
   const [endLongitude, setEndLongitude] = useState(null);
   const [isEndLocationSelected, setIsEndLocationSelected] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [date, setDate] = useState(new Date()); // Initialize with current date
+  const [isDateSelected, setIsDateSelected] = useState(false); // Track date selection
+
   const heightAnim = useRef(new Animated.Value(400)).current;
 
   const handleEndFocus = () => {
@@ -43,9 +48,9 @@ const ArrivalHome = ({route, navigation}) => {
       setEndAddress(data.description);
       setEndLatitude(lat);
       setEndLongitude(lng);
-      setIsEndLocationSelected(true);
+
       Animated.timing(heightAnim, {
-        toValue: 350,
+        toValue: 250,
         duration: 300,
         useNativeDriver: false,
       }).start();
@@ -53,6 +58,19 @@ const ArrivalHome = ({route, navigation}) => {
       console.error('Details are null');
     }
   };
+
+  const showDatepicker = () => {
+    setShowDatePicker(true);
+  };
+  
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShowDatePicker(false); // Ensure this sets showDatePicker to false
+    setDate(currentDate);
+    setIsDateSelected(true);
+    setIsEndLocationSelected(true);
+  };
+  
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -72,47 +90,9 @@ const ArrivalHome = ({route, navigation}) => {
           </TouchableOpacity>
           <Text style={styles.headerText}>Set Arrival Location</Text>
         </View>
+
         <View style={styles.content}>
           <Animated.View style={[styles.container, {height: heightAnim}]}>
-          <View
-              style={{
-                width: '100%',
-                borderWidth: 1,
-                padding: 12,
-                borderRadius: 15,
-                paddingHorizontal: 10,
-                flexDirection: 'row',
-                gap: 10,
-                alignItems:'center'
-              }}>
-              <Image
-                style={{width: 30, height: 30}}
-                source={require('../../../assets/images/calendar.png')}
-              />
-              <Text style={{fontFamily: 'Poppins-Medium', color: 'black'}}>
-              {date}
-              </Text>
-            </View>
-
-          <View
-              style={{
-                width: '100%',
-                padding: 10,
-                borderRadius: 15,
-                flexDirection: 'row',
-                gap: 10,
-                justifyContent: 'space-between',
-              }}>
-              <Image
-                style={{width: 20, height: 20}}
-                source={require('../../../assets/images/dots.png')}
-              />
-              <Image
-                style={{width: 20, height: 20}}
-                source={require('../../../assets/images/dots.png')}
-              />
-            </View>
-            
             <View
               style={{
                 width: '100%',
@@ -187,7 +167,7 @@ const ArrivalHome = ({route, navigation}) => {
                 </Text>
               </View>
             )}
-            
+
             <TouchableOpacity
               style={[
                 styles.goButton,
@@ -196,13 +176,64 @@ const ArrivalHome = ({route, navigation}) => {
               onPress={() => {
                 // Handle the next step with start and end locations
               }}
-              disabled={!isEndLocationSelected}>
+              disabled={!(isEndLocationSelected && isDateSelected)}>
               <Image
                 style={styles.arrowIcon}
                 source={require('../../../assets/images/right-arrow-white.png')}
               />
             </TouchableOpacity>
           </Animated.View>
+
+          <View
+            style={{
+              width: '80%',
+              borderWidth: 1,
+              padding: 12,
+              borderRadius: 15,
+              paddingHorizontal: 10,
+              flexDirection: 'row',
+              gap: 10,
+              alignItems: 'center',
+              backgroundColor: '#fff',
+              marginTop: 40,
+            }}>
+            <TouchableOpacity
+              onPress={showDatepicker}
+              style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Image
+                style={{width: 30, height: 30}}
+                source={require('../../../assets/images/calendar.png')}
+              />
+              <Text
+                style={{
+                  fontFamily: 'Poppins-Medium',
+                  color: showDatePicker ? '#000' : '#888',
+                  marginLeft: 10,
+                }}>
+                {date.toLocaleDateString()}
+              </Text>
+            </TouchableOpacity>
+
+            {showDatePicker && (
+              <View>
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={date}
+                  mode="date" // You can also use 'time' or 'datetime'
+                  is24Hour={true} // Adjust as needed
+                  display="default" // Adjust as needed
+                  minimumDate={new Date()} // Only show dates after today
+                  onChange={onChange}
+                  themeVariant="dark"
+                  display="spinner"
+                  positiveButton={{label: 'OK', textColor: 'blue'}}
+                  style={{
+                    borderRadius: 100,
+                  }}
+                />
+              </View>
+            )}
+          </View>
         </View>
       </ImageBackground>
     </SafeAreaView>
@@ -235,6 +266,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: -155,
   },
   container: {
     width: '80%',

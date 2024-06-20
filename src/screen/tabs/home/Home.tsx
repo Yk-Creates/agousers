@@ -1,4 +1,4 @@
-import DateTimePicker from '@react-native-community/datetimepicker'; // For Date Picker
+
 
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useRef, useState } from 'react';
@@ -20,8 +20,7 @@ const Home = ({navigation}: any) => {
   const [longitude, setLongitude] = useState(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [isLocationSelected, setIsLocationSelected] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [date, setDate] = useState(new Date()); // Initialize with current date
+
 
   const heightAnim = useRef(new Animated.Value(300)).current; // Initial height
 
@@ -45,15 +44,7 @@ const Home = ({navigation}: any) => {
     }
   };
 
-  const showDatepicker = () => {
-    setShowDatePicker(true);
-  };
 
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShowDatePicker(false); 
-    setDate(currentDate); 
-  };
 
   const handlePress = (data, details = null) => {
     if (details) {
@@ -64,7 +55,7 @@ const Home = ({navigation}: any) => {
       setLongitude(lng);
       setIsLocationSelected(true);
       Animated.timing(heightAnim, {
-        toValue: 250,
+        toValue: 150,
         duration: 300,
         useNativeDriver: false,
       }).start();
@@ -107,77 +98,6 @@ const Home = ({navigation}: any) => {
             width: '100%',
           }}> */}
 
-        <View
-          style={{
-            width: '100%',
-            borderWidth: 1,
-            padding: 12,
-            borderRadius: 15,
-            paddingHorizontal: 10,
-            flexDirection: 'row',
-            gap: 10,
-            alignItems: 'center',
-          }}>
-          <TouchableOpacity
-            onPress={showDatepicker}
-            style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Image
-              style={{width: 30, height: 30}}
-              source={require('../../../assets/images/calendar.png')}
-            />
-            <Text
-              style={{
-                fontFamily: 'Poppins-Medium',
-                color: showDatePicker ? 'black' : '#888', // Gray initially, black after selection
-                marginLeft: 10,
-              }}>
-              {date.toLocaleDateString()}
-            </Text>
-          </TouchableOpacity>
-
-          {showDatePicker && (
-            <View >
-              <DateTimePicker
-                testID="dateTimePicker"
-                value={date}
-                mode="date" // You can also use 'time' or 'datetime'
-                is24Hour={true} // Adjust as needed
-                display="default" // Adjust as needed
-                minimumDate={new Date()} // Only show dates after today
-                onChange={onChange}
-                themeVariant="dark"
-                display ="spinner"
-                positiveButton={{label: 'OK', textColor: 'blue'}}
-                style={{
-                  borderRadius:100
-                }}
-              />
-            </View>
-          )}
-        </View>
-
-
-
-        {/* </TouchableOpacity> */}
-
-        <View
-          style={{
-            width: '100%',
-            padding: 10,
-            borderRadius: 15,
-            flexDirection: 'row',
-            gap: 10,
-            justifyContent: 'space-between',
-          }}>
-          <Image
-            style={{width: 20, height: 20}}
-            source={require('../../../assets/images/dots.png')}
-          />
-          <Image
-            style={{width: 20, height: 20}}
-            source={require('../../../assets/images/dots.png')}
-          />
-        </View>
 
         <GooglePlacesAutocomplete
           placeholder="Enter start address"
@@ -222,7 +142,7 @@ const Home = ({navigation}: any) => {
               startLat: latitude,
               startLong: longitude,
               startAdd: address,
-              date: date.toLocaleDateString(),
+              // date: date.toLocaleDateString(),
             })
           }
           disabled={!isLocationSelected}>
