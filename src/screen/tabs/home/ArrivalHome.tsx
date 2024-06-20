@@ -1,18 +1,18 @@
-import React, {useState, useRef} from 'react';
+import React, { useRef, useState } from 'react';
 import {
+  Animated,
   Image,
+  ImageBackground,
   SafeAreaView,
   StyleSheet,
   Text,
-  View,
   TouchableOpacity,
-  Animated,
-  ImageBackground,
+  View,
 } from 'react-native';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 const ArrivalHome = ({route, navigation}) => {
-  const {startLat, startLong, startAdd} = route.params;
+  const {startLat, startLong, startAdd, date} = route.params; // Receive date here
   const [endAddress, setEndAddress] = useState('');
   const [endLatitude, setEndLatitude] = useState(null);
   const [endLongitude, setEndLongitude] = useState(null);
@@ -45,7 +45,7 @@ const ArrivalHome = ({route, navigation}) => {
       setEndLongitude(lng);
       setIsEndLocationSelected(true);
       Animated.timing(heightAnim, {
-        toValue: 300,
+        toValue: 350,
         duration: 300,
         useNativeDriver: false,
       }).start();
@@ -74,6 +74,45 @@ const ArrivalHome = ({route, navigation}) => {
         </View>
         <View style={styles.content}>
           <Animated.View style={[styles.container, {height: heightAnim}]}>
+          <View
+              style={{
+                width: '100%',
+                borderWidth: 1,
+                padding: 12,
+                borderRadius: 15,
+                paddingHorizontal: 10,
+                flexDirection: 'row',
+                gap: 10,
+                alignItems:'center'
+              }}>
+              <Image
+                style={{width: 30, height: 30}}
+                source={require('../../../assets/images/calendar.png')}
+              />
+              <Text style={{fontFamily: 'Poppins-Medium', color: 'black'}}>
+              {date}
+              </Text>
+            </View>
+
+          <View
+              style={{
+                width: '100%',
+                padding: 10,
+                borderRadius: 15,
+                flexDirection: 'row',
+                gap: 10,
+                justifyContent: 'space-between',
+              }}>
+              <Image
+                style={{width: 20, height: 20}}
+                source={require('../../../assets/images/dots.png')}
+              />
+              <Image
+                style={{width: 20, height: 20}}
+                source={require('../../../assets/images/dots.png')}
+              />
+            </View>
+            
             <View
               style={{
                 width: '100%',
@@ -148,6 +187,7 @@ const ArrivalHome = ({route, navigation}) => {
                 </Text>
               </View>
             )}
+            
             <TouchableOpacity
               style={[
                 styles.goButton,
