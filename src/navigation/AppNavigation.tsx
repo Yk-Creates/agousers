@@ -6,7 +6,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Login from '../screen/auth/Login';
 import SignUp from '../screen/auth/Signup';
 import Landing from '../screen/landing/Landing';
-import Home from '../screen/tabs/Home';
+import Home from '../screen/tabs/home/Home';
 import LoginListener from '../screen/auth/LoginListener';
 import Ambulance from '../screen/tabs/Ambulance';
 import Courier from '../screen/tabs/Courier';
@@ -15,6 +15,7 @@ import cab from '../assets/images/cab.png';
 import ambulance from '../assets/images/ambulance.png';
 import courier from '../assets/images/courier.png';
 import profile from '../assets/images/profile.png';
+import ArrivalHome from '../screen/tabs/home/ArrivalHome';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -81,6 +82,7 @@ export default function AppNavigation() {
       <Stack.Screen name="register" component={SignUp} />
       <Stack.Screen name="login" component={Login} />
       <Stack.Screen name="hometab" component={HomeTabs} />
+      <Stack.Screen name="arrivalhome" component={ArrivalHome} />
     </Stack.Navigator>
   );
 }
