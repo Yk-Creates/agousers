@@ -29,13 +29,13 @@ function HomeTabs() {
         tabBarIcon: ({focused, color, size}) => {
           let iconName;
 
-          if (route.name === 'home') {
+          if (route.name === 'Cab') {
             iconName = cab;
-          } else if (route.name === 'ambulance') {
+          } else if (route.name === 'Ambulance') {
             iconName = ambulance;
-          } else if (route.name === 'courier') {
+          } else if (route.name === 'Courier') {
             iconName = courier;
-          } else if (route.name === 'profile') {
+          } else if (route.name === 'Profile') {
             iconName = profile;
           }
 
@@ -50,19 +50,19 @@ function HomeTabs() {
           );
         },
       })}>
-      <Tab.Screen name="home" component={Home} options={{headerShown: false}} />
+      <Tab.Screen name="Cab" component={Home} options={{headerShown: false}} />
       <Tab.Screen
-        name="ambulance"
+        name="Ambulance"
         component={Ambulance}
         options={{headerShown: false}}
       />
       <Tab.Screen
-        name="courier"
+        name="Courier"
         component={Courier}
         options={{headerShown: false}}
       />
       <Tab.Screen
-        name="profile"
+        name="Profile"
         component={Profile}
         options={{headerShown: false}}
       />
