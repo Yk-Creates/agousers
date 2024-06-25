@@ -1,15 +1,18 @@
-import {useFocusEffect} from '@react-navigation/native';
-import React, {useState, useRef, useCallback} from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useRef, useState } from 'react';
 import {
+  Animated,
   Image,
   ImageBackground,
+  Modal,
+  PermissionsAndroid,
   StyleSheet,
   Text,
-  View,
   TouchableOpacity,
-  Animated,
+  View,
 } from 'react-native';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import Geolocation from 'react-native-geolocation-service';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 const Home = ({navigation}: any) => {
   const [initialLocation, setInitialLocation] = useState({});
@@ -18,6 +21,7 @@ const Home = ({navigation}: any) => {
   const [longitude, setLongitude] = useState(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [isLocationSelected, setIsLocationSelected] = useState(false);
+  const [showUseCurrentLocationModal, setShowUseCurrentLocationModal] = useState(false); // State for modal visibility
 
   const heightAnim = useRef(new Animated.Value(300)).current; // Initial height
 
@@ -59,6 +63,66 @@ const Home = ({navigation}: any) => {
     }
   };
 
+  const confirmUseCurrentLocation = () => {
+    setAddress('Current Location');
+    setIsLocationSelected(true);
+    setShowUseCurrentLocationModal(false); 
+  };
+
+
+  const cancelUseCurrentLocation = () => {
+    setShowUseCurrentLocationModal(false); 
+  };
+
+  const requestLocationPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: 'Location Permission',
+          message:
+            'The app needs access to your location to show your current position.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Location permission granted');
+        getLocation(); // Proceed to get current location if permission granted
+      } else {
+        console.log('Location permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+  
+
+  const getLocation = () => {
+    Geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        console.log('Received location:', latitude, longitude);
+        setLatitude(latitude);
+        setLongitude(longitude);
+        setShowUseCurrentLocationModal(true); 
+      },
+      (error) => {
+        console.error('Error fetching location:', error);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+  };
+  
+
+  // useEffect(() => {
+
+  // },[])
+  
+  
+
+
   useFocusEffect(
     useCallback(() => {
       // Reset state when the screen is focused
@@ -67,6 +131,8 @@ const Home = ({navigation}: any) => {
       setLatitude(null);
       setLongitude(null);
       setIsLocationSelected(false);
+      requestLocationPermission();
+
       Animated.timing(heightAnim, {
         toValue: 300, // Ensure height resets to 300
         duration: 300,
@@ -94,12 +160,6 @@ const Home = ({navigation}: any) => {
           Schedula a Taxi
         </Text>
       </View>
-      {/* <View style={styles.imageContainer}>
-        <Image
-          style={styles.image}
-          source={require('../../../assets/images/ago.png')}
-        />
-      </View> */}
       <Animated.View style={[styles.container, {height: heightAnim}]}>
         <GooglePlacesAutocomplete
           placeholder="Enter start address"
@@ -139,13 +199,18 @@ const Home = ({navigation}: any) => {
             styles.goButton,
             {backgroundColor: isLocationSelected ? '#1B2024' : '#ccc'},
           ]}
-          onPress={() =>
+          onPress={() => {
+            console.log("Coordinates sent to arrivalhome:", {
+              startLat: latitude,
+              startLong: longitude,
+              startAdd: address,
+            });
             navigation.navigate('arrivalhome', {
               startLat: latitude,
               startLong: longitude,
               startAdd: address,
-            })
-          }
+            });
+          }}
           disabled={!isLocationSelected}>
           <Image
             style={styles.arrowIcon}
@@ -153,6 +218,55 @@ const Home = ({navigation}: any) => {
           />
         </TouchableOpacity>
       </Animated.View>
+
+      <View
+      style={{
+        width:'100%',
+        alignItems:"flex-end",
+        height:'100%',
+         marginRight:20
+      }}
+      >   
+      <TouchableOpacity style={styles.button}
+        onPress={getLocation}>
+        <Image
+          source={require('../../../assets/images/target.png')}
+          style={{
+            width: 25,
+            height: 25,
+          }}
+        />
+      </TouchableOpacity>
+      </View>
+
+      <Modal
+        visible={showUseCurrentLocationModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowUseCurrentLocationModal(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>
+              Use current location as pickup address?
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: 'green' }]}
+                onPress={confirmUseCurrentLocation}
+              >
+                <Text style={styles.modalButtonText}>Yes</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: 'red' }]}
+                onPress={cancelUseCurrentLocation}
+              >
+                <Text style={styles.modalButtonText}>No</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ImageBackground>
   );
 };
@@ -164,6 +278,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
+
   container: {
     width: '80%',
     padding: 20,
@@ -236,5 +351,57 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     padding: -60,
+  },
+
+
+  button: {
+    backgroundColor: 'black',
+    borderRadius: 50,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top:'24%',
+  },
+  locationContainer: {
+    marginTop: 20,
+  },
+
+
+
+
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
