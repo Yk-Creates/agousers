@@ -17,6 +17,10 @@ export const login = async (phoneNo: any, password: any) => {
   const response = await apiClient.post('/users/login', {phoneNo, password});
   return response.data;
 };
+export const getRates = async () => {
+  const response = await apiClient.get('/cab/getrate');
+  return response.data;
+};
 
 // // Add a request interceptor to include the token in the headers
 // apiClient.interceptors.request.use(

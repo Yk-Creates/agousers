@@ -151,11 +151,18 @@ const ArrivalHome = ({route, navigation}) => {
             <TouchableOpacity
               style={[
                 styles.goButton,
-                {backgroundColor: isEndLocationSelected ? '#340092' : '#ccc'},
+                {backgroundColor: isEndLocationSelected ? '#1B2024' : '#ccc'},
               ]}
-              onPress={() => {
-                // Handle the next step with start and end locations
-              }}
+              onPress={() =>
+                navigation.navigate('cabpayments', {
+                  startLat: startLat,
+                  startLong: startLong,
+                  endLat: endLatitude,
+                  endLong: endLongitude,
+                  startAdd: startAdd,
+                  endAdd: endAddress,
+                })
+              }
               disabled={!isEndLocationSelected}>
               <Image
                 style={styles.arrowIcon}
@@ -181,19 +188,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 30,
     alignItems: 'center',
+    backgroundColor: '#1B2024',
   },
   backIcon: {
     width: 15,
     height: 15,
   },
   headerText: {
-    color: 'black',
+    color: 'white',
     fontFamily: 'Poppins-Medium',
     fontSize: 17,
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
+
     alignItems: 'center',
   },
   container: {
@@ -203,13 +211,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'gray',
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    marginTop: 50,
   },
   inputContainer: {
     width: '100%',

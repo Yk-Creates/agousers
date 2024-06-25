@@ -81,12 +81,25 @@ const Home = ({navigation}: any) => {
       style={styles.background}
       resizeMode="cover"
       imageStyle={{opacity: 0.2}}>
-      <View style={styles.imageContainer}>
+      <View
+        style={{
+          backgroundColor: '#1B2024',
+          width: '100%',
+          height: 70,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Text
+          style={{color: 'white', fontFamily: 'Poppins-Regular', fontSize: 20}}>
+          Schedula a Taxi
+        </Text>
+      </View>
+      {/* <View style={styles.imageContainer}>
         <Image
           style={styles.image}
           source={require('../../../assets/images/ago.png')}
         />
-      </View>
+      </View> */}
       <Animated.View style={[styles.container, {height: heightAnim}]}>
         <GooglePlacesAutocomplete
           placeholder="Enter start address"
@@ -124,7 +137,7 @@ const Home = ({navigation}: any) => {
         <TouchableOpacity
           style={[
             styles.goButton,
-            {backgroundColor: isLocationSelected ? '#340092' : '#ccc'},
+            {backgroundColor: isLocationSelected ? '#1B2024' : '#ccc'},
           ]}
           onPress={() =>
             navigation.navigate('arrivalhome', {
@@ -167,6 +180,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     position: 'relative',
+    marginTop: 50,
   },
   inputContainer: {
     width: '100%',

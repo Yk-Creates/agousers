@@ -10,7 +10,7 @@ const App = () => {
   return (
     <>
       <QueryClientProvider client={queryClient}>
-        <StatusBar barStyle="light-content" backgroundColor="#340092" />
+        <StatusBar barStyle="light-content" backgroundColor="#1B2024" />
         <NavigationContainer>
           <AppNavigation />
         </NavigationContainer>

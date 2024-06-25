@@ -1,6 +1,9 @@
 import React from 'react';
-import {Image, StyleSheet, View} from 'react-native';
-import {createStackNavigator} from '@react-navigation/stack';
+import {Image, StyleSheet} from 'react-native';
+import {
+  createStackNavigator,
+  CardStyleInterpolators,
+} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 import Login from '../screen/auth/Login';
@@ -16,6 +19,7 @@ import ambulance from '../assets/images/ambulance.png';
 import courier from '../assets/images/courier.png';
 import profile from '../assets/images/profile.png';
 import ArrivalHome from '../screen/tabs/home/ArrivalHome';
+import CabPayment from '../screen/tabs/home/CabPayment';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -27,7 +31,7 @@ function HomeTabs() {
         tabBarActiveTintColor: 'white',
         tabBarInactiveTintColor: '#919191',
         tabBarStyle: styles.tabBarStyle,
-        tabBarIcon: ({focused, color, size}) => {
+        tabBarIcon: ({color, size}) => {
           let iconName;
 
           if (route.name === 'Cab') {
@@ -82,14 +86,27 @@ export default function AppNavigation() {
       <Stack.Screen name="register" component={SignUp} />
       <Stack.Screen name="login" component={Login} />
       <Stack.Screen name="hometab" component={HomeTabs} />
-      <Stack.Screen name="arrivalhome" component={ArrivalHome} />
+      <Stack.Screen
+        name="arrivalhome"
+        component={ArrivalHome}
+        options={{
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        }}
+      />
+      <Stack.Screen
+        name="cabpayments"
+        component={CabPayment}
+        options={{
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        }}
+      />
     </Stack.Navigator>
   );
 }
 
 const styles = StyleSheet.create({
   tabBarStyle: {
-    backgroundColor: '#340092',
+    backgroundColor: '#1B2024',
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
     height: 70,
