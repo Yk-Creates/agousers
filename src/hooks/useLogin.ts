@@ -9,6 +9,7 @@ const useLogin = () => {
     onSuccess: async data => {
       try {
         await AsyncStorage.setItem('token', data.token);
+        await AsyncStorage.setItem('name', data.username);
         Snackbar.show({
           text: 'Logged in successfully',
           duration: Snackbar.LENGTH_SHORT,

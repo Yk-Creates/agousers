@@ -1,12 +1,15 @@
 import React from 'react';
-import {Image, StyleSheet, View} from 'react-native';
-import {createStackNavigator} from '@react-navigation/stack';
+import {Image, StyleSheet} from 'react-native';
+import {
+  createStackNavigator,
+  CardStyleInterpolators,
+} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 import Login from '../screen/auth/Login';
 import SignUp from '../screen/auth/Signup';
 import Landing from '../screen/landing/Landing';
-import Home from '../screen/tabs/Home';
+import Home from '../screen/tabs/home/Home';
 import LoginListener from '../screen/auth/LoginListener';
 import Ambulance from '../screen/tabs/Ambulance';
 import Courier from '../screen/tabs/Courier';
@@ -15,6 +18,9 @@ import cab from '../assets/images/cab.png';
 import ambulance from '../assets/images/ambulance.png';
 import courier from '../assets/images/courier.png';
 import profile from '../assets/images/profile.png';
+import ArrivalHome from '../screen/tabs/home/ArrivalHome';
+import CabPayment from '../screen/tabs/home/CabPayment';
+import ActiveRequests from '../screen/profile/ActiveRequests';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -26,16 +32,16 @@ function HomeTabs() {
         tabBarActiveTintColor: 'white',
         tabBarInactiveTintColor: '#919191',
         tabBarStyle: styles.tabBarStyle,
-        tabBarIcon: ({focused, color, size}) => {
+        tabBarIcon: ({color, size}) => {
           let iconName;
 
-          if (route.name === 'home') {
+          if (route.name === 'Cab') {
             iconName = cab;
-          } else if (route.name === 'ambulance') {
+          } else if (route.name === 'Ambulance') {
             iconName = ambulance;
-          } else if (route.name === 'courier') {
+          } else if (route.name === 'Courier') {
             iconName = courier;
-          } else if (route.name === 'profile') {
+          } else if (route.name === 'Profile') {
             iconName = profile;
           }
 
@@ -50,19 +56,19 @@ function HomeTabs() {
           );
         },
       })}>
-      <Tab.Screen name="home" component={Home} options={{headerShown: false}} />
+      <Tab.Screen name="Cab" component={Home} options={{headerShown: false}} />
       <Tab.Screen
-        name="ambulance"
+        name="Ambulance"
         component={Ambulance}
         options={{headerShown: false}}
       />
       <Tab.Screen
-        name="courier"
+        name="Courier"
         component={Courier}
         options={{headerShown: false}}
       />
       <Tab.Screen
-        name="profile"
+        name="Profile"
         component={Profile}
         options={{headerShown: false}}
       />
@@ -81,13 +87,28 @@ export default function AppNavigation() {
       <Stack.Screen name="register" component={SignUp} />
       <Stack.Screen name="login" component={Login} />
       <Stack.Screen name="hometab" component={HomeTabs} />
+      <Stack.Screen
+        name="arrivalhome"
+        component={ArrivalHome}
+        options={{
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        }}
+      />
+      <Stack.Screen
+        name="cabpayments"
+        component={CabPayment}
+        options={{
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        }}
+      />
+      <Stack.Screen name="active-requests" component={ActiveRequests} />
     </Stack.Navigator>
   );
 }
 
 const styles = StyleSheet.create({
   tabBarStyle: {
-    backgroundColor: '#340092',
+    backgroundColor: '#1B2024',
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
     height: 70,
