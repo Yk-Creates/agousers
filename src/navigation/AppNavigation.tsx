@@ -20,6 +20,7 @@ import courier from '../assets/images/courier.png';
 import profile from '../assets/images/profile.png';
 import ArrivalHome from '../screen/tabs/home/ArrivalHome';
 import CabPayment from '../screen/tabs/home/CabPayment';
+import ActiveRequests from '../screen/profile/ActiveRequests';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -100,6 +101,7 @@ export default function AppNavigation() {
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
         }}
       />
+      <Stack.Screen name="active-requests" component={ActiveRequests} />
     </Stack.Navigator>
   );
 }

@@ -1,6 +1,7 @@
-import { useFocusEffect } from '@react-navigation/native';
-import React, { useCallback, useRef, useState } from 'react';
+import {useFocusEffect} from '@react-navigation/native';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
+  ActivityIndicator,
   Animated,
   Image,
   ImageBackground,
@@ -12,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 
 const Home = ({navigation}: any) => {
   const [initialLocation, setInitialLocation] = useState({});
@@ -21,14 +22,17 @@ const Home = ({navigation}: any) => {
   const [longitude, setLongitude] = useState(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [isLocationSelected, setIsLocationSelected] = useState(false);
-  const [showUseCurrentLocationModal, setShowUseCurrentLocationModal] = useState(false); // State for modal visibility
-
+  const [showUseCurrentLocationModal, setShowUseCurrentLocationModal] =
+    useState(false);
+  const [locationFetchingSpinnerState, setLocationFetchingSpinnerState] =
+    useState(false);
+  const [locationFetched, setLocationFetched] = useState(false); // New state for location fetch status
   const heightAnim = useRef(new Animated.Value(300)).current; // Initial height
 
   const handleFocus = () => {
     setIsInputFocused(true);
     Animated.timing(heightAnim, {
-      toValue: 200,
+      toValue: 300,
       duration: 300,
       useNativeDriver: false,
     }).start();
@@ -54,7 +58,7 @@ const Home = ({navigation}: any) => {
       setLongitude(lng);
       setIsLocationSelected(true);
       Animated.timing(heightAnim, {
-        toValue: 200,
+        toValue: 300,
         duration: 300,
         useNativeDriver: false,
       }).start();
@@ -66,12 +70,12 @@ const Home = ({navigation}: any) => {
   const confirmUseCurrentLocation = () => {
     setAddress('Current Location');
     setIsLocationSelected(true);
-    setShowUseCurrentLocationModal(false); 
+    setShowUseCurrentLocationModal(false);
+    setLocationFetchingSpinnerState(false);
   };
 
-
   const cancelUseCurrentLocation = () => {
-    setShowUseCurrentLocationModal(false); 
+    setShowUseCurrentLocationModal(false);
   };
 
   const requestLocationPermission = async () => {
@@ -89,7 +93,6 @@ const Home = ({navigation}: any) => {
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('Location permission granted');
-        getLocation(); // Proceed to get current location if permission granted
       } else {
         console.log('Location permission denied');
       }
@@ -97,49 +100,29 @@ const Home = ({navigation}: any) => {
       console.warn(err);
     }
   };
-  
 
   const getLocation = () => {
+    setLocationFetchingSpinnerState(true);
     Geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
+      position => {
+        const {latitude, longitude} = position.coords;
         console.log('Received location:', latitude, longitude);
+
         setLatitude(latitude);
         setLongitude(longitude);
-        setShowUseCurrentLocationModal(true); 
+        setLocationFetched(true); // Set location fetched status to true
+        setShowUseCurrentLocationModal(true); // Show modal when location fetched
       },
-      (error) => {
+      error => {
         console.error('Error fetching location:', error);
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
     );
   };
-  
 
-  // useEffect(() => {
-
-  // },[])
-  
-  
-
-
-  useFocusEffect(
-    useCallback(() => {
-      // Reset state when the screen is focused
-      setInitialLocation({});
-      setAddress('');
-      setLatitude(null);
-      setLongitude(null);
-      setIsLocationSelected(false);
-      requestLocationPermission();
-
-      Animated.timing(heightAnim, {
-        toValue: 300, // Ensure height resets to 300
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
-    }, [heightAnim]),
-  );
+  useEffect(() => {
+    requestLocationPermission();
+  }, []);
 
   return (
     <ImageBackground
@@ -157,7 +140,7 @@ const Home = ({navigation}: any) => {
         }}>
         <Text
           style={{color: 'white', fontFamily: 'Poppins-Regular', fontSize: 20}}>
-          Schedula a Taxi
+          Schedule a Taxi
         </Text>
       </View>
       <Animated.View style={[styles.container, {height: heightAnim}]}>
@@ -200,7 +183,7 @@ const Home = ({navigation}: any) => {
             {backgroundColor: isLocationSelected ? '#1B2024' : '#ccc'},
           ]}
           onPress={() => {
-            console.log("Coordinates sent to arrivalhome:", {
+            console.log('Coordinates sent to arrivalhome:', {
               startLat: latitude,
               startLong: longitude,
               startAdd: address,
@@ -218,33 +201,69 @@ const Home = ({navigation}: any) => {
           />
         </TouchableOpacity>
       </Animated.View>
-
-      <View
-      style={{
-        width:'100%',
-        alignItems:"flex-end",
-        height:'100%',
-         marginRight:20
-      }}
-      >   
-      <TouchableOpacity style={styles.button}
+      <TouchableOpacity
+        style={{
+          width: '80%',
+          shadowColor: '#000',
+          shadowOffset: {width: 0, height: 2},
+          shadowOpacity: 0.25,
+          shadowRadius: 3.84,
+          elevation: 5,
+        }}
         onPress={getLocation}>
-        <Image
-          source={require('../../../assets/images/target.png')}
+        <View
           style={{
-            width: 25,
-            height: 25,
-          }}
-        />
+            backgroundColor: 'white',
+            marginTop: 20,
+            borderWidth: 1,
+            flexDirection: 'row',
+            borderColor: 'gray',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 10,
+            borderRadius: 10,
+            gap: 10,
+          }}>
+          {locationFetchingSpinnerState ? (
+            <>
+              <ActivityIndicator color={'black'} />
+              <Text style={{color: 'black', fontFamily: 'Poppins-Regular'}}>
+                Fetching Location
+              </Text>
+            </>
+          ) : (
+            <>
+              <Image
+                source={require('../../../assets/images/location-pin.png')}
+                style={{
+                  width: 25,
+                  height: 25,
+                }}
+              />
+              {latitude && longitude ? (
+                <>
+                  <Text
+                    style={{fontFamily: 'Poppins-SemiBold', color: 'green'}}>
+                    Location Selected
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Text style={{fontFamily: 'Poppins-SemiBold'}}>
+                    Select Current Location
+                  </Text>
+                </>
+              )}
+            </>
+          )}
+        </View>
       </TouchableOpacity>
-      </View>
-
+          
       <Modal
         visible={showUseCurrentLocationModal}
         transparent={true}
         animationType="slide"
-        onRequestClose={() => setShowUseCurrentLocationModal(false)}
-      >
+        onRequestClose={() => setShowUseCurrentLocationModal(false)}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalText}>
@@ -252,16 +271,14 @@ const Home = ({navigation}: any) => {
             </Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: 'green' }]}
-                onPress={confirmUseCurrentLocation}
-              >
-                <Text style={styles.modalButtonText}>Yes</Text>
+                style={[styles.modalButton, {backgroundColor: 'red'}]}
+                onPress={cancelUseCurrentLocation}>
+                <Text style={styles.modalButtonText}>No</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: 'red' }]}
-                onPress={cancelUseCurrentLocation}
-              >
-                <Text style={styles.modalButtonText}>No</Text>
+                style={[styles.modalButton, {backgroundColor: 'green'}]}
+                onPress={confirmUseCurrentLocation}>
+                <Text style={styles.modalButtonText}>Yes</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -324,15 +341,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
   },
-  imageContainer: {
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  image: {
-    height: 150,
-    width: 150,
-  },
   goButton: {
     position: 'absolute',
     bottom: -30,
@@ -353,7 +361,6 @@ const styles = StyleSheet.create({
     padding: -60,
   },
 
-
   button: {
     backgroundColor: 'black',
     borderRadius: 50,
@@ -362,14 +369,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    top:'24%',
+    top: '24%',
   },
   locationContainer: {
     marginTop: 20,
   },
-
-
-
 
   modalContainer: {
     flex: 1,
@@ -386,8 +390,9 @@ const styles = StyleSheet.create({
   },
   modalText: {
     fontSize: 18,
-    marginBottom: 20,
+    marginBottom: 30,
     textAlign: 'center',
+    fontFamily: 'Poppins-SemiBold',
   },
   modalButtons: {
     flexDirection: 'row',
@@ -395,13 +400,14 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   modalButton: {
-    paddingVertical: 10,
+    paddingVertical: 7,
     paddingHorizontal: 20,
     borderRadius: 5,
   },
   modalButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 15,
+    fontFamily: 'Poppins-Medium',
     textAlign: 'center',
   },
 });

@@ -1,6 +1,7 @@
 import React, {useRef, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
+  Button,
   Dimensions,
   Image,
   StyleSheet,
@@ -12,18 +13,31 @@ import BottomSheet from 'react-native-simple-bottom-sheet';
 import MapView, {PROVIDER_GOOGLE, Marker, Polyline} from 'react-native-maps';
 import {ScrollView} from 'react-native-gesture-handler';
 import useGetCabRates from '../../../hooks/useGetCabRates';
+import useBookCab from '../../../hooks/useBookCab';
 import smallCabImage from '../../../assets/images/smallCab.png';
 import mediumCabImage from '../../../assets/images/mediumCab.png';
 import largeCabImage from '../../../assets/images/largeCab.png';
 
+import Modal from 'react-native-modal';
+import Snackbar from 'react-native-snackbar';
+
 const CabPayment = ({route, navigation}) => {
   const {data, error, isLoading} = useGetCabRates();
-  const {startLat, startLong, startAdd, endLat, endLong, endAdd} = route.params;
+  const {startLat, startLong, startAdd, endLat, endLong, endAdd, date, time} =
+    route.params;
 
+  const dateString = typeof date === 'string' ? date : String(date);
+  const timeString = typeof time === 'string' ? time : String(time);
+  const dateObj = new Date(dateString);
+  const formattedDate = dateObj.toLocaleDateString('en-GB');
   const mapRef = useRef(); // Ref for MapView
   const [travelTime, setTravelTime] = useState(null);
   const [distance, setDistance] = useState(0);
+  const [isModalVisible, setModalVisible] = useState(false);
 
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
   const fitToCoordinates = () => {
     if (mapRef.current) {
       mapRef.current.fitToCoordinates(
@@ -43,6 +57,7 @@ const CabPayment = ({route, navigation}) => {
       );
     }
   };
+
   // Function to fetch travel distance via roads using Google Directions API
   const fetchTravelDistance = () => {
     const origin = `${startLat},${startLong}`;
@@ -127,17 +142,42 @@ const CabPayment = ({route, navigation}) => {
           <View>
             <Image
               resizeMode="contain"
-              style={{
-                width: 100,
-                height: 100,
-                transform: [{rotate: '0deg'}],
-              }}
+              style={{width: 100, height: 100, transform: [{rotate: '0deg'}]}}
               source={cabImage} // Use dynamically determined image source
             />
           </View>
         </View>
       );
     });
+  };
+
+  const {mutate: bookCab, isPending, isSuccess} = useBookCab();
+
+  const handleConfirm = () => {
+    const cabDetails = {
+      startLat,
+      startLong,
+      endLat,
+      endLong,
+      date: formattedDate,
+      time: timeString,
+    };
+    bookCab(cabDetails); // Call your API to book the cab
+
+    navigation.navigate('Profile');
+    Snackbar.show({
+      text: 'Cab booked successfully',
+      duration: Snackbar.LENGTH_LONG,
+      backgroundColor: 'green',
+    });
+  };
+
+  const openModalOnConfirm = () => {
+    toggleModal();
+  };
+
+  const handleCancel = () => {
+    toggleModal(); // Just close the modal
   };
 
   return (
@@ -219,7 +259,8 @@ const CabPayment = ({route, navigation}) => {
                 paddingVertical: 8,
                 borderRadius: 4,
                 justifyContent: 'center',
-              }}>
+              }}
+              onPress={openModalOnConfirm}>
               <Text style={{color: 'white', fontFamily: 'Poppins-SemiBold'}}>
                 Confirm
               </Text>
@@ -227,6 +268,64 @@ const CabPayment = ({route, navigation}) => {
           </View>
         </BottomSheet>
       </View>
+      <Modal isVisible={isModalVisible}>
+        <View style={styles.modalContent}>
+          <Text
+            style={{
+              fontFamily: 'Poppins-SemiBold',
+              color: 'black',
+              marginBottom: 20,
+            }}>
+            Do you want to confirm the ride?
+          </Text>
+          <View
+            style={{paddingHorizontal: 50, width: '100%', marginBottom: 10}}>
+            <Text style={{fontFamily: 'Poppins-SemiBold', color: 'black'}}>
+              From :{' '}
+              <Text style={{fontFamily: 'Poppins-Regular'}}>{startAdd}</Text>
+            </Text>
+            <Text style={{fontFamily: 'Poppins-Medium', color: 'black'}}>
+              To : <Text style={{fontFamily: 'Poppins-Regular'}}>{endAdd}</Text>
+            </Text>
+            <Text style={{fontFamily: 'Poppins-Medium', color: 'black'}}>
+              At :{' '}
+              <Text style={{fontFamily: 'Poppins-Regular'}}>
+                {formattedDate} {timeString}
+              </Text>
+            </Text>
+          </View>
+          <View style={styles.modalButtons}>
+            <TouchableOpacity
+              style={{backgroundColor: '#DC5F00', borderRadius: 4}}
+              onPress={handleCancel}>
+              <Text
+                style={{
+                  fontFamily: 'Poppins-Regular',
+                  color: 'white',
+                  padding: 5,
+
+                  paddingHorizontal: 15,
+                }}>
+                No
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{backgroundColor: '#729762', borderRadius: 4}}
+              onPress={handleConfirm}>
+              <Text
+                style={{
+                  fontFamily: 'Poppins-Regular',
+                  color: 'white',
+                  padding: 5,
+
+                  paddingHorizontal: 15,
+                }}>
+                Yes
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -290,5 +389,21 @@ const styles = StyleSheet.create({
   markerImage: {
     width: 40,
     height: 40,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 22,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 4,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+
+  modalButtons: {
+    width: '100%',
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
   },
 });

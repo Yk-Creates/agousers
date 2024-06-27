@@ -1,5 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, { useRef, useState } from 'react';
+import React, {useRef, useState} from 'react';
 import {
   Animated,
   Image,
@@ -10,10 +10,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 
-const ArrivalHome = ({ route, navigation }) => {
-  const { startLat, startLong, startAdd } = route.params;
+const ArrivalHome = ({route, navigation}) => {
+  const {startLat, startLong, startAdd} = route.params;
   const [endAddress, setEndAddress] = useState('');
   const [endLatitude, setEndLatitude] = useState(null);
   const [endLongitude, setEndLongitude] = useState(null);
@@ -46,7 +46,7 @@ const ArrivalHome = ({ route, navigation }) => {
 
   const handleEndPress = (data, details = null) => {
     if (details) {
-      const { lat, lng } = details.geometry.location;
+      const {lat, lng} = details.geometry.location;
       setEndAddress(data.description);
       setEndLatitude(lat);
       setEndLongitude(lng);
@@ -81,7 +81,10 @@ const ArrivalHome = ({ route, navigation }) => {
     setShowTimePicker(false);
     setTime(currentTime);
     setIsTimeSelected(true);
-    console.log("Selected Time:", currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    console.log(
+      'Selected Time:',
+      currentTime.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
+    );
   };
 
   const handleNavigation = () => {
@@ -93,21 +96,24 @@ const ArrivalHome = ({ route, navigation }) => {
       startAdd: startAdd,
       endAdd: endAddress,
       date: date.toISOString(),
-      time: time.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+      time: time.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     };
-    console.log('Payload:', payload);
+
     navigation.navigate('cabpayments', payload);
   };
-  
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{flex: 1}}>
       <ImageBackground
         source={require('../../../assets/images/background.png')}
         style={styles.backgroundImage}
-        imageStyle={{ opacity: 0.2 }}>
+        imageStyle={{opacity: 0.2}}>
         <View style={styles.header}>
           <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}
+            style={{flexDirection: 'row', alignItems: 'center', gap: 5}}
             onPress={() => navigation.goBack()}>
             <Image
               style={styles.backIcon}
@@ -118,7 +124,7 @@ const ArrivalHome = ({ route, navigation }) => {
           <Text style={styles.headerText}>Set Arrival Location</Text>
         </View>
         <View style={styles.content}>
-          <Animated.View style={[styles.container, { height: heightAnim }]}>
+          <Animated.View style={[styles.container, {height: heightAnim}]}>
             <View
               style={{
                 width: '100%',
@@ -130,10 +136,10 @@ const ArrivalHome = ({ route, navigation }) => {
                 gap: 10,
               }}>
               <Image
-                style={{ width: 20, height: 20 }}
+                style={{width: 20, height: 20}}
                 source={require('../../../assets/images/search.png')}
               />
-              <Text style={{ fontFamily: 'Poppins-Medium', color: 'black' }}>
+              <Text style={{fontFamily: 'Poppins-Medium', color: 'black'}}>
                 {startAdd.length > 20
                   ? `${startAdd.substring(0, 20)}...`
                   : startAdd}
@@ -149,11 +155,11 @@ const ArrivalHome = ({ route, navigation }) => {
                 justifyContent: 'space-between',
               }}>
               <Image
-                style={{ width: 20, height: 20 }}
+                style={{width: 20, height: 20}}
                 source={require('../../../assets/images/dots.png')}
               />
               <Image
-                style={{ width: 20, height: 20 }}
+                style={{width: 20, height: 20}}
                 source={require('../../../assets/images/dots.png')}
               />
             </View>
@@ -184,9 +190,9 @@ const ArrivalHome = ({ route, navigation }) => {
             />
             {endAddress && (
               <View style={styles.locationDetails}>
-                <Text style={{ fontFamily: 'Poppins-Medium' }}>
+                <Text style={{fontFamily: 'Poppins-Medium'}}>
                   End Address:{' '}
-                  <Text style={{ fontFamily: 'Poppins-Regular' }}>
+                  <Text style={{fontFamily: 'Poppins-Regular'}}>
                     {endAddress}
                   </Text>
                 </Text>
@@ -221,15 +227,15 @@ const ArrivalHome = ({ route, navigation }) => {
               alignItems: 'center',
               justifyContent: 'space-between',
               marginTop: 35,
-              gap: 25
+              gap: 25,
             }}>
             {/* for selecting date */}
             <View style={styles.DateTime}>
               <TouchableOpacity
                 onPress={showDatepicker}
-                style={{ flexDirection: 'row', alignItems: 'center' }}>
+                style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Image
-                  style={{ width: 25, height: 25 }}
+                  style={{width: 25, height: 25}}
                   source={require('../../../assets/images/calendar.png')}
                 />
                 <Text
@@ -253,7 +259,7 @@ const ArrivalHome = ({ route, navigation }) => {
                     minimumDate={new Date()}
                     onChange={onDateChange}
                     themeVariant="dark"
-                    positiveButton={{ label: 'OK', textColor: 'blue' }}
+                    positiveButton={{label: 'OK', textColor: 'blue'}}
                     style={{
                       borderRadius: 100,
                     }}
@@ -266,9 +272,9 @@ const ArrivalHome = ({ route, navigation }) => {
             <View style={styles.DateTime}>
               <TouchableOpacity
                 onPress={showTimepicker}
-                style={{ flexDirection: 'row', alignItems: 'center' }}>
+                style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Image
-                  style={{ width: 25, height: 25 }}
+                  style={{width: 25, height: 25}}
                   source={require('../../../assets/images/time.png')}
                 />
                 <Text
@@ -294,7 +300,7 @@ const ArrivalHome = ({ route, navigation }) => {
                     display="spinner"
                     onChange={onTimeChange}
                     themeVariant="dark"
-                    positiveButton={{ label: 'OK', textColor: 'blue' }}
+                    positiveButton={{label: 'OK', textColor: 'blue'}}
                     style={{
                       borderRadius: 100,
                     }}
@@ -344,7 +350,7 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
