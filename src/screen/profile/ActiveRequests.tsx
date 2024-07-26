@@ -7,16 +7,19 @@ import {
   ActivityIndicator,
   Image,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
 import useActiveRequests from '../../hooks/useActiveRequests';
 import {getAddressFromCoordinates} from '../../utils/geocoding';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+// import useActiveRequests from '../../hooks/useActiveRequests';
+// import {getAddressFromCoordinates} from '../../utils/geocoding';
+// import {TouchableOpacity} from 'react-native-gesture-handler';
 
-const ActiveRequests = ({navigation}) => {
+const ActiveRequests = ({navigation}: any) => {
   const {data, isLoading, error, refetch} = useActiveRequests();
   const [addresses, setAddresses] = useState({});
   const [refreshing, setRefreshing] = useState(false);
-
+  // console.log(data[0]);
   useEffect(() => {
     if (data) {
       const fetchAddresses = async () => {
@@ -72,7 +75,17 @@ const ActiveRequests = ({navigation}) => {
   const renderItem = ({item}) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>Ride Request</Text>
+        <Text style={styles.cardTitle}>Actice Rides </Text>
+        {item.driver && (
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('active-requests-details', {item})
+            }>
+            <Text style={{color: 'white', fontFamily: 'Poppins-Regular'}}>
+              View Details {`>`}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
       <View style={styles.cardBody}>
         <View style={{padding: 16}}>
@@ -112,15 +125,27 @@ const ActiveRequests = ({navigation}) => {
               At : {item.time}
             </Text>
           </View>
-          <Text
-            style={{
-              fontFamily: 'Poppins-Medium',
+          {item.status === 'ACCEPTED' ? (
+            <Text
+              style={{
+                fontFamily: 'Poppins-Medium',
+                fontWeight: 900,
+                color: 'green',
+              }}>
+              <Text style={styles.label}>Status: </Text>
+              {item.status}
+            </Text>
+          ) : (
+            <Text
+              style={{
+                fontFamily: 'Poppins-Medium',
 
-              color: 'red',
-            }}>
-            <Text style={styles.label}>Status: </Text>
-            {item.status}
-          </Text>
+                color: 'blue',
+              }}>
+              <Text style={styles.label}>Status: </Text>
+              {item.status}
+            </Text>
+          )}
         </View>
       </View>
     </View>
@@ -134,7 +159,7 @@ const ActiveRequests = ({navigation}) => {
           onPress={() => navigation.goBack()}>
           <Image
             style={styles.backIcon}
-            source={require('../../assets/images/back-stick.png')}
+            source={require('../../assets/images/arrow.png')}
           />
           <Text style={styles.headerText}>back</Text>
         </TouchableOpacity>
@@ -172,6 +197,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     padding: 16,
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
@@ -219,6 +247,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'Poppins-Medium',
     fontSize: 17,
+    marginTop: 3,
   },
 });
 

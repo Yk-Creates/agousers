@@ -34,6 +34,7 @@ const CabPayment = ({route, navigation}) => {
   const [travelTime, setTravelTime] = useState(null);
   const [distance, setDistance] = useState(0);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedCabModel, setSelectedCabModel] = useState(null); // State for selected cab model
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -111,24 +112,36 @@ const CabPayment = ({route, navigation}) => {
 
       // Determine which image to use based on carType
       let cabImage;
+      let cabModel;
       switch (carType.toLowerCase()) {
         case 'small':
           cabImage = smallCabImage;
+          cabModel = 'S';
           break;
         case 'medium':
           cabImage = mediumCabImage;
+          cabModel = 'M';
           break;
         case 'large':
           cabImage = largeCabImage;
+          cabModel = 'L';
           break;
         default:
           cabImage = smallCabImage; // Default to small cab image
+          cabModel = 'S';
           break;
       }
 
       return (
-        <View key={_id} style={styles.card}>
-          <View style={{}}>
+        <TouchableOpacity
+          key={_id}
+          style={[
+            styles.card,
+            selectedCabModel === cabModel ? styles.selectedCard : {},
+          ]}
+          onPress={() => setSelectedCabModel(cabModel)} // Set selected cab model
+        >
+          <View>
             <Text style={styles.cardTitle}>{carType.toUpperCase()}</Text>
             <Text style={styles.cardText}>₹ {fare.toFixed(2)} (one way)</Text>
             <View style={styles.cardFooter}>
@@ -146,7 +159,7 @@ const CabPayment = ({route, navigation}) => {
               source={cabImage} // Use dynamically determined image source
             />
           </View>
-        </View>
+        </TouchableOpacity>
       );
     });
   };
@@ -154,6 +167,15 @@ const CabPayment = ({route, navigation}) => {
   const {mutate: bookCab, isPending, isSuccess} = useBookCab();
 
   const handleConfirm = () => {
+    if (!selectedCabModel) {
+      Snackbar.show({
+        text: 'Please select a cab model',
+        duration: Snackbar.LENGTH_LONG,
+        backgroundColor: 'red',
+      });
+      return;
+    }
+
     const cabDetails = {
       startLat,
       startLong,
@@ -161,6 +183,8 @@ const CabPayment = ({route, navigation}) => {
       endLong,
       date: formattedDate,
       time: timeString,
+      type: 'CAB',
+      model: selectedCabModel,
     };
     bookCab(cabDetails); // Call your API to book the cab
 
@@ -247,90 +271,55 @@ const CabPayment = ({route, navigation}) => {
         <BottomSheet
           isOpen
           sliderMaxHeight={Dimensions.get('window').height * 0.7}>
-          <View style={styles.bottomSheetContent}>
-            <ScrollView>{renderCabCards()}</ScrollView>
-          </View>
-          <View style={{alignItems: 'center', height: 50}}>
-            <TouchableOpacity
-              style={{
-                width: '80%',
-                alignItems: 'center',
-                backgroundColor: '#1B2024',
-                paddingVertical: 8,
-                borderRadius: 4,
-                justifyContent: 'center',
-              }}
-              onPress={openModalOnConfirm}>
-              <Text style={{color: 'white', fontFamily: 'Poppins-SemiBold'}}>
-                Confirm
+          <View style={styles.contentContainer}>
+            <View style={{alignItems: 'center'}}>
+              <Text style={styles.text}>
+                <Text style={styles.semiBoldText}>From: </Text>
+                {startAdd}
               </Text>
-            </TouchableOpacity>
-          </View>
-        </BottomSheet>
-      </View>
-      <Modal isVisible={isModalVisible}>
-        <View style={styles.modalContent}>
-          <Text
-            style={{
-              fontFamily: 'Poppins-SemiBold',
-              color: 'black',
-              marginBottom: 20,
-            }}>
-            Do you want to confirm the ride?
-          </Text>
-          <View
-            style={{paddingHorizontal: 50, width: '100%', marginBottom: 10}}>
-            <Text style={{fontFamily: 'Poppins-SemiBold', color: 'black'}}>
-              From :{' '}
-              <Text style={{fontFamily: 'Poppins-Regular'}}>{startAdd}</Text>
-            </Text>
-            <Text style={{fontFamily: 'Poppins-Medium', color: 'black'}}>
-              To : <Text style={{fontFamily: 'Poppins-Regular'}}>{endAdd}</Text>
-            </Text>
-            <Text style={{fontFamily: 'Poppins-Medium', color: 'black'}}>
-              At :{' '}
-              <Text style={{fontFamily: 'Poppins-Regular'}}>
+              <Text style={styles.text}>
+                <Text style={styles.semiBoldText}>To: </Text>
+                {endAdd}
+              </Text>
+              <Text style={styles.text}>
+                <Text style={styles.semiBoldText}>at </Text>
                 {formattedDate} {timeString}
               </Text>
-            </Text>
-          </View>
-          <View style={styles.modalButtons}>
-            <TouchableOpacity
-              style={{backgroundColor: '#DC5F00', borderRadius: 4}}
-              onPress={handleCancel}>
-              <Text
-                style={{
-                  fontFamily: 'Poppins-Regular',
-                  color: 'white',
-                  padding: 5,
-
-                  paddingHorizontal: 15,
-                }}>
-                No
+              <Text style={styles.text}>
+                <Text style={styles.semiBoldText}>Distance: </Text>
+                {distance.toFixed(2)} km
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{backgroundColor: '#729762', borderRadius: 4}}
-              onPress={handleConfirm}>
-              <Text
-                style={{
-                  fontFamily: 'Poppins-Regular',
-                  color: 'white',
-                  padding: 5,
+            </View>
 
-                  paddingHorizontal: 15,
-                }}>
-                Yes
-              </Text>
-            </TouchableOpacity>
+            {/* Cards */}
+            <ScrollView horizontal contentContainerStyle={styles.cardContainer}>
+              {renderCabCards()}
+            </ScrollView>
+
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={openModalOnConfirm}>
+                <Text style={styles.buttonText}>Confirm Booking</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </BottomSheet>
+
+        {/* Confirmation Modal */}
+        <Modal isVisible={isModalVisible} animationIn="slideInUp">
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Confirm Booking?</Text>
+            <View style={styles.modalButtonContainer}>
+              <Button title="Cancel" onPress={handleCancel} color="red" />
+              <Button title="Confirm" onPress={handleConfirm} color="green" />
+            </View>
+          </View>
+        </Modal>
+      </View>
     </View>
   );
 };
-
-export default CabPayment;
 
 const styles = StyleSheet.create({
   header: {
@@ -350,60 +339,99 @@ const styles = StyleSheet.create({
     height: 20,
   },
   map: {
-    ...StyleSheet.absoluteFillObject,
+    flex: 1,
   },
-  bottomSheetContent: {
+  markerImage: {
+    width: 25,
+    height: 25,
+  },
+  contentContainer: {
     padding: 20,
-    height: 450,
-    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  text: {
+    fontSize: 16,
+    color: 'black',
+    fontFamily: 'Poppins-Regular',
+  },
+  semiBoldText: {
+    fontFamily: 'Poppins-SemiBold',
+  },
+  cardContainer: {
+    marginTop: 20,
+    alignItems: 'center',
   },
   card: {
-    borderColor: '#340092',
-    borderWidth: 1,
+    backgroundColor: '#f5f5f5',
     borderRadius: 10,
-    marginBottom: 20,
-    flexDirection: 'row',
+    padding: 10,
+    marginHorizontal: 10,
+    width: 150,
+    height: 200,
     justifyContent: 'space-between',
-    padding: 15,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  selectedCard: {
+    borderColor: 'green', // Highlight the selected card
+    borderWidth: 2,
   },
   cardTitle: {
+    fontSize: 18,
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 20,
-    color: '#340092',
+    color: 'black',
   },
   cardText: {
+    fontSize: 14,
     fontFamily: 'Poppins-Regular',
     color: 'black',
-    marginTop: 5,
   },
   cardFooter: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
   },
   icon: {
     width: 20,
     height: 20,
     marginRight: 5,
   },
-  markerImage: {
-    width: 40,
-    height: 40,
-  },
+
   modalContent: {
     backgroundColor: 'white',
-    padding: 22,
-    width: '100%',
-    justifyContent: 'center',
+    padding: 20,
+    borderRadius: 10,
     alignItems: 'center',
-    borderRadius: 4,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
   },
-
-  modalButtons: {
-    width: '100%',
-    marginTop: 10,
+  modalText: {
+    fontSize: 18,
+    fontFamily: 'Poppins-SemiBold',
+    color: 'black',
+    marginBottom: 20,
+  },
+  modalButtonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  // buttonContainer: {
+  //   marginTop: 20,
+  // },
+  buttonContainer: {
+    marginTop: 20,
+    width: '100%',
+  },
+  button: {
+    backgroundColor: 'green',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontFamily: 'Poppins-SemiBold', // Change this to your desired font family
+    fontSize: 16,
   },
 });
+
+export default CabPayment;

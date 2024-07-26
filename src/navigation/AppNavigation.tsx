@@ -11,9 +11,9 @@ import SignUp from '../screen/auth/Signup';
 import Landing from '../screen/landing/Landing';
 import Home from '../screen/tabs/home/Home';
 import LoginListener from '../screen/auth/LoginListener';
-import Ambulance from '../screen/tabs/Ambulance';
-import Courier from '../screen/tabs/Courier';
-import Profile from '../screen/tabs/Profile';
+import Ambulance from '../screen/tabs/ambulance/Ambulance';
+import Courier from '../screen/tabs/courier/Courier';
+import Profile from '../screen/tabs/profile/Profile';
 import cab from '../assets/images/cab.png';
 import ambulance from '../assets/images/ambulance.png';
 import courier from '../assets/images/courier.png';
@@ -21,6 +21,8 @@ import profile from '../assets/images/profile.png';
 import ArrivalHome from '../screen/tabs/home/ArrivalHome';
 import CabPayment from '../screen/tabs/home/CabPayment';
 import ActiveRequests from '../screen/profile/ActiveRequests';
+import ActiveRequestsDetails from '../screen/profile/ActiveRequestsDetails';
+import RequestsHistory from '../screen/profile/RequestsHistory';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -102,6 +104,11 @@ export default function AppNavigation() {
         }}
       />
       <Stack.Screen name="active-requests" component={ActiveRequests} />
+      <Stack.Screen
+        name="active-requests-details"
+        component={ActiveRequestsDetails}
+      />
+      <Stack.Screen name="request-history" component={RequestsHistory} />
     </Stack.Navigator>
   );
 }
