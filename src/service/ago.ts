@@ -19,8 +19,17 @@ export const login = async (phoneNo: any, password: any) => {
   const response = await apiClient.post('/users/login', {phoneNo, password});
   return response.data;
 };
+
+export const register = async (name: any, phoneNo: any, password: any) => {
+  const response = await apiClient.post('/users/register', {
+    name,
+    phoneNo,
+    password,
+  });
+  return response.data;
+};
 export const getRates = async () => {
-  const response = await apiClient.get('/cab/getrate');
+  const response = await apiClient.get('/cab/get-cab-rates');
   return response.data;
 };
 
@@ -31,6 +40,8 @@ export const bookCab = async ({
   endLong,
   date,
   time,
+  type,
+  model,
 }: any) => {
   try {
     const token = await AsyncStorage.getItem('token');
@@ -48,6 +59,8 @@ export const bookCab = async ({
         endLong,
         date,
         time,
+        type,
+        model,
       },
       {
         headers: {
@@ -73,6 +86,27 @@ export const getActiveRequests = async () => {
     }
 
     const response = await apiClient.get('/users/getactiverequests', {
+      headers: {
+        token: token,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching active requests:', error);
+    throw error;
+  }
+};
+
+export const getRequestHistory = async () => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+
+    if (!token) {
+      throw new Error('Token is required');
+    }
+
+    const response = await apiClient.get('/users/getallrequests', {
       headers: {
         token: token,
       },

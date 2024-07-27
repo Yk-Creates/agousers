@@ -7,17 +7,33 @@ import {
   View,
   KeyboardAvoidingView,
   Platform,
-  Switch,
-} from 'react-native';
-import {
-  TextInput,
   TouchableOpacity,
   ScrollView,
-} from 'react-native-gesture-handler';
+  TextInput,
+} from 'react-native';
+import useRegister from '../../hooks/useRegister';
+import Snackbar from 'react-native-snackbar';
 
 const SignUp = ({navigation}: any) => {
+  const [name, setName] = useState('');
+  const [phoneNo, setPhoneNo] = useState('');
+  const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [agreeTerms, setAgreeTerms] = useState(false);
+
+  const {mutate: register, isPending} = useRegister(navigation);
+
+  const handleRegister = () => {
+    if (!name || !phoneNo || !password) {
+      Snackbar.show({
+        text: 'Please fill in all fields',
+        duration: Snackbar.LENGTH_SHORT,
+        backgroundColor: 'red',
+      });
+      return;
+    }
+
+    register({name, phoneNo, password});
+  };
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -59,6 +75,8 @@ const SignUp = ({navigation}: any) => {
                 placeholder="Enter Name"
                 placeholderTextColor={'#868585'}
                 style={styles.input}
+                value={name}
+                onChangeText={setName}
               />
             </View>
 
@@ -68,6 +86,9 @@ const SignUp = ({navigation}: any) => {
                 placeholder="Enter phone number"
                 placeholderTextColor={'#868585'}
                 style={styles.input}
+                value={phoneNo}
+                onChangeText={setPhoneNo}
+                keyboardType="phone-pad"
               />
             </View>
             <View style={[styles.inputContainer, {marginTop: 10}]}>
@@ -78,6 +99,8 @@ const SignUp = ({navigation}: any) => {
                   placeholderTextColor={'#868585'}
                   style={[styles.input, {flex: 1, borderWidth: 0}]}
                   secureTextEntry={!passwordVisible}
+                  value={password}
+                  onChangeText={setPassword}
                 />
                 <TouchableOpacity
                   onPress={() => setPasswordVisible(!passwordVisible)}
@@ -102,9 +125,11 @@ const SignUp = ({navigation}: any) => {
         </ScrollView>
         <View style={{margin: 20}}>
           <TouchableOpacity
-            style={[styles.loginButton, {backgroundColor: 'black'}]}>
+            style={[styles.loginButton, {backgroundColor: 'black'}]}
+            onPress={handleRegister}
+            disabled={isPending}>
             <Text style={{fontFamily: 'Poppins-Medium', color: 'white'}}>
-              Register
+              {isPending ? 'Registering...' : 'Register'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -131,12 +156,9 @@ const SignUp = ({navigation}: any) => {
   );
 };
 
-export default SignUp;
-
 const styles = StyleSheet.create({
   inputContainer: {
     marginHorizontal: 30,
-    // marginVertical: 7,
   },
   label: {
     fontFamily: 'Poppins-Medium',
@@ -168,13 +190,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
-    // marginTop: 10,
   },
   register: {
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
     width: '100%',
-    // marginTop: 10,
   },
 });
+
+export default SignUp;

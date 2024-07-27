@@ -21,7 +21,7 @@ import largeCabImage from '../../../assets/images/largeCab.png';
 import Modal from 'react-native-modal';
 import Snackbar from 'react-native-snackbar';
 
-const CabPayment = ({route, navigation}) => {
+const AmbulancePayment = ({route, navigation}) => {
   const {data, error, isLoading} = useGetCabRates();
   const {startLat, startLong, startAdd, endLat, endLong, endAdd, date, time} =
     route.params;
@@ -183,7 +183,7 @@ const CabPayment = ({route, navigation}) => {
       endLong,
       date: formattedDate,
       time: timeString,
-      type: 'CAB',
+      type: 'AMBULANCE',
       model: selectedCabModel,
     };
     bookCab(cabDetails); // Call your API to book the cab
@@ -434,4 +434,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CabPayment;
+export default AmbulancePayment;
