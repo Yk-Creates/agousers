@@ -40,6 +40,8 @@ export const bookCab = async ({
   endLong,
   date,
   time,
+  type,
+  model,
 }: any) => {
   try {
     const token = await AsyncStorage.getItem('token');
@@ -57,6 +59,8 @@ export const bookCab = async ({
         endLong,
         date,
         time,
+        type,
+        model,
       },
       {
         headers: {

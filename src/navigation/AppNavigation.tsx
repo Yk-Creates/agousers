@@ -23,6 +23,8 @@ import CabPayment from '../screen/tabs/home/CabPayment';
 import ActiveRequests from '../screen/profile/ActiveRequests';
 import ActiveRequestsDetails from '../screen/profile/ActiveRequestsDetails';
 import RequestsHistory from '../screen/profile/RequestsHistory';
+import ArrivalAmbluanceHome from '../screen/tabs/ambulance/ArrivalAmbluanceHome';
+import AmbulancePayment from '../screen/tabs/ambulance/AmbulancePayment';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -109,6 +111,20 @@ export default function AppNavigation() {
         component={ActiveRequestsDetails}
       />
       <Stack.Screen name="request-history" component={RequestsHistory} />
+      <Stack.Screen
+        name="arrival-ambulance-home"
+        component={ArrivalAmbluanceHome}
+        options={{
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        }}
+      />
+      <Stack.Screen
+        name="ambulance-payment"
+        component={AmbulancePayment}
+        options={{
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        }}
+      />
     </Stack.Navigator>
   );
 }

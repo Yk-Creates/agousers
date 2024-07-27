@@ -7,7 +7,6 @@ import {
   View,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import {
