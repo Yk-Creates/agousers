@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -9,14 +9,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import BottomSheet from 'react-native-simple-bottom-sheet';
-import MapView, {PROVIDER_GOOGLE, Marker, Polyline} from 'react-native-maps';
-import {ScrollView} from 'react-native-gesture-handler';
-import useGetCabRates from '../../../hooks/useGetCabRates';
-import useBookCab from '../../../hooks/useBookCab';
-import smallCabImage from '../../../assets/images/smallCab.png';
-import mediumCabImage from '../../../assets/images/mediumCab.png';
 import largeCabImage from '../../../assets/images/largeCab.png';
+import mediumCabImage from '../../../assets/images/mediumCab.png';
+import smallCabImage from '../../../assets/images/smallCab.png';
+import useBookCab from '../../../hooks/useBookCab';
+import useGetCabRates from '../../../hooks/useGetCabRates';
 
 import Modal from 'react-native-modal';
 import Snackbar from 'react-native-snackbar';
@@ -185,6 +185,7 @@ const CabPayment = ({route, navigation}) => {
       time: timeString,
       type: 'CAB',
       model: selectedCabModel,
+      desc: ''
     };
     bookCab(cabDetails); // Call your API to book the cab
 

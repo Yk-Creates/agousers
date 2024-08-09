@@ -1,24 +1,47 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, {useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Animated,
   Image,
   ImageBackground,
+  Modal,
+  PermissionsAndroid,
   SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import Geolocation from 'react-native-geolocation-service';
+import {
+  GooglePlaceData,
+  GooglePlaceDetail,
+  GooglePlacesAutocomplete,
+} from 'react-native-google-places-autocomplete';
+import Snackbar from 'react-native-snackbar';
+import useBookCab from '../../../hooks/useBookCab';
 
-const ArrivalAmbluanceHome = ({route, navigation}) => {
-  const {startLat, startLong, startAdd} = route.params;
+const ArrivalAmbluanceHome = ({route, navigation}: any) => {
+  const [address, setAddress] = useState('');
+
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [isLocationSelected, setIsLocationSelected] = useState(false);
+
+  const [showUseCurrentLocationModal, setShowUseCurrentLocationModal] =
+    useState(false);
+  const [locationFetchingSpinnerState, setLocationFetchingSpinnerState] =
+    useState(false);
+  const [locationFetched, setLocationFetched] = useState(false);
+
   const [endAddress, setEndAddress] = useState('');
-  const [endLatitude, setEndLatitude] = useState(null);
-  const [endLongitude, setEndLongitude] = useState(null);
+  const [endLatitude, setEndLatitude] = useState<number | null>(null);
+  const [endLongitude, setEndLongitude] = useState<number | null>(null);
   const [isEndLocationSelected, setIsEndLocationSelected] = useState(false);
-  const heightAnim = useRef(new Animated.Value(400)).current;
+
+  const heightAnim = useRef(new Animated.Value(250)).current;
+
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [date, setDate] = useState(new Date());
@@ -26,36 +49,38 @@ const ArrivalAmbluanceHome = ({route, navigation}) => {
   const [isDateSelected, setIsDateSelected] = useState(false);
   const [isTimeSelected, setIsTimeSelected] = useState(false);
 
-  const handleEndFocus = () => {
-    Animated.timing(heightAnim, {
-      toValue: 300,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  };
+  const [isStartModalVisible, setIsStartModalVisible] = useState(false);
+  const [isEndModalVisible, setIsEndModalVisible] = useState(false);
 
-  const handleEndBlur = () => {
-    if (!endAddress) {
-      Animated.timing(heightAnim, {
-        toValue: 300,
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
+  const {mutate: bookCab, isPending, isSuccess} = useBookCab();
+
+  const handleStartPress = (
+    data: GooglePlaceData,
+    details: GooglePlaceDetail | null,
+  ) => {
+    if (details) {
+      const {lat, lng} = details.geometry.location;
+      setAddress(data.description);
+      setLatitude(lat);
+      setLongitude(lng);
+      setIsLocationSelected(true);
+      setIsEndModalVisible(false);
+    } else {
+      console.error('Details are null');
     }
   };
 
-  const handleEndPress = (data, details = null) => {
+  const handleEndPress = (
+    data: GooglePlaceData,
+    details: GooglePlaceDetail | null,
+  ) => {
     if (details) {
       const {lat, lng} = details.geometry.location;
       setEndAddress(data.description);
       setEndLatitude(lat);
       setEndLongitude(lng);
       setIsEndLocationSelected(true);
-      Animated.timing(heightAnim, {
-        toValue: 300,
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
+      setIsEndModalVisible(false);
     } else {
       console.error('Details are null');
     }
@@ -69,41 +94,110 @@ const ArrivalAmbluanceHome = ({route, navigation}) => {
     setShowTimePicker(true);
   };
 
-  const onDateChange = (event, selectedDate) => {
+  const onDateChange = (event: any, selectedDate: any) => {
     const currentDate = selectedDate || date;
     setShowDatePicker(false);
     setDate(currentDate);
     setIsDateSelected(true);
   };
 
-  const onTimeChange = (event, selectedTime) => {
+  const onTimeChange = (event: any, selectedTime: any) => {
     const currentTime = selectedTime || time;
     setShowTimePicker(false);
     setTime(currentTime);
     setIsTimeSelected(true);
-    console.log(
-      'Selected Time:',
-      currentTime.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
-    );
   };
 
   const handleNavigation = () => {
-    const payload = {
-      startLat: startLat,
-      startLong: startLong,
+    const cabDetails = {
+      startLat: latitude,
+      startLong: longitude,
       endLat: endLatitude,
       endLong: endLongitude,
-      startAdd: startAdd,
-      endAdd: endAddress,
       date: date.toISOString(),
       time: time.toLocaleTimeString('en-GB', {
         hour: '2-digit',
         minute: '2-digit',
       }),
+      type: 'AMBULANCE',
+      model: 'S',
+      desc:''
     };
 
-    navigation.navigate('ambulance-payment', payload);
+    bookCab(cabDetails, {
+      onSuccess: () => {
+        console.log('Ambulance booked successfully');
+        navigation.navigate('Profile', cabDetails);
+        Snackbar.show({
+          text: 'Ambulance pickup request sent successfully',
+          duration: Snackbar.LENGTH_LONG,
+          backgroundColor: 'green',
+        });
+      },
+      onError: (error: any) => {
+        console.error('Error booking cab:', error);
+      },
+    });
   };
+
+  const confirmUseCurrentLocation = () => {
+    setAddress('Current Location');
+    setIsLocationSelected(true);
+    setShowUseCurrentLocationModal(false);
+    setLocationFetchingSpinnerState(false);
+    setIsEndModalVisible(false);
+  };
+
+  const cancelUseCurrentLocation = () => {
+    setShowUseCurrentLocationModal(false);
+    setIsEndModalVisible(true);
+  };
+
+  const requestLocationPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: 'Location Permission',
+          message:
+            'The app needs access to your location to show your current position.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Location permission granted');
+      } else {
+        console.log('Location permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const getLocation = () => {
+    setLocationFetchingSpinnerState(true);
+    Geolocation.getCurrentPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        console.log('Received location:', latitude, longitude);
+
+        setLatitude(latitude);
+        setLongitude(longitude);
+        setLocationFetched(true);
+        setShowUseCurrentLocationModal(true);
+      },
+      error => {
+        console.error('Error fetching location:', error);
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    );
+  };
+
+  useEffect(() => {
+    requestLocationPermission();
+  }, []);
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -111,40 +205,37 @@ const ArrivalAmbluanceHome = ({route, navigation}) => {
         source={require('../../../assets/images/background.png')}
         style={styles.backgroundImage}
         imageStyle={{opacity: 0.2}}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={{flexDirection: 'row', alignItems: 'center', gap: 5}}
-            onPress={() => navigation.goBack()}>
-            <Image
-              style={styles.backIcon}
-              source={require('../../../assets/images/back-stick.png')}
-            />
-            <Text style={styles.headerText}>back</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerText}>Set Arrival Location</Text>
+        <View
+          style={{
+            backgroundColor: '#1B2024',
+            width: '100%',
+            height: 70,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <Text
+            style={{
+              color: 'white',
+              fontFamily: 'Poppins-Regular',
+              fontSize: 20,
+            }}>
+            Schedule An Ambulance
+          </Text>
         </View>
+
         <View style={styles.content}>
           <Animated.View style={[styles.container, {height: heightAnim}]}>
-            <View
-              style={{
-                width: '100%',
-                borderWidth: 1,
-                padding: 12,
-                borderRadius: 15,
-                paddingHorizontal: 10,
-                flexDirection: 'row',
-                gap: 10,
-              }}>
+            <TouchableOpacity
+              style={styles.addressButton}
+              onPress={() => setIsStartModalVisible(true)}>
               <Image
-                style={{width: 20, height: 20}}
+                style={styles.searchIcon}
                 source={require('../../../assets/images/search.png')}
               />
-              <Text style={{fontFamily: 'Poppins-Medium', color: 'black'}}>
-                {startAdd.length > 20
-                  ? `${startAdd.substring(0, 20)}...`
-                  : startAdd}
+              <Text style={styles.addressText}>
+                {address || 'Enter Start Address'}
               </Text>
-            </View>
+            </TouchableOpacity>
             <View
               style={{
                 width: '100%',
@@ -163,55 +254,43 @@ const ArrivalAmbluanceHome = ({route, navigation}) => {
                 source={require('../../../assets/images/dots.png')}
               />
             </View>
-            <GooglePlacesAutocomplete
-              placeholder="Enter end address"
-              onPress={handleEndPress}
-              onFocus={handleEndFocus}
-              onBlur={handleEndBlur}
-              query={{
-                key: 'AIzaSyC8zy45f-dWZWg0P4A9mGAZjNlMYTnJRvI',
-                language: 'en',
-              }}
-              fetchDetails={true}
-              onFail={error => console.error(error)}
-              styles={{
-                textInputContainer: styles.inputContainer,
-                textInput: styles.input,
-                predefinedPlacesDescription: {
-                  color: '#1faadb',
+            <TouchableOpacity
+              style={[
+                styles.addressButton,
+                {
+                  borderColor: 'black',
                 },
-              }}
-              renderLeftButton={() => (
-                <Image
-                  style={styles.searchIcon}
-                  source={require('../../../assets/images/search.png')}
-                />
-              )}
-            />
-            {endAddress && (
-              <View style={styles.locationDetails}>
-                <Text style={{fontFamily: 'Poppins-Medium'}}>
-                  End Address:{' '}
-                  <Text style={{fontFamily: 'Poppins-Regular'}}>
-                    {endAddress}
-                  </Text>
-                </Text>
-              </View>
-            )}
-
+              ]}
+              onPress={() => setIsEndModalVisible(true)}>
+              <Image
+                style={styles.searchIcon}
+                source={require('../../../assets/images/search.png')}
+              />
+              <Text style={styles.addressText}>
+                {endAddress || 'Enter End address'}
+              </Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.goButton,
                 {
                   backgroundColor:
-                    isEndLocationSelected && isDateSelected && isTimeSelected
-                      ? '#1B2024'
-                      : '#ccc',
+                    isLocationSelected &&
+                    isEndLocationSelected &&
+                    isDateSelected &&
+                    isTimeSelected
+                    ? '#1B2024'
+                    : '#ccc',
                 },
               ]}
               onPress={handleNavigation}
               disabled={
-                !(isEndLocationSelected && isDateSelected && isTimeSelected)
+                !(
+                  isLocationSelected &&
+                  isEndLocationSelected &&
+                  isDateSelected &&
+                  isTimeSelected
+                )
               }>
               <Image
                 style={styles.arrowIcon}
@@ -310,6 +389,187 @@ const ArrivalAmbluanceHome = ({route, navigation}) => {
             </View>
           </View>
         </View>
+
+        {/* Modal for Start Address (Arrival Address) */}
+        <Modal
+          visible={isStartModalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setIsStartModalVisible(false)}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Select Arrival Address</Text>
+              <GooglePlacesAutocomplete
+                placeholder="Enter arrival address"
+                onPress={handleStartPress}
+                query={{
+                  key: 'AIzaSyC8zy45f-dWZWg0P4A9mGAZjNlMYTnJRvI',
+                  language: 'en',
+                }}
+                fetchDetails={true}
+                onFail={error => console.error(error)}
+                styles={{
+                  textInputContainer: styles.inputContainer,
+                  textInput: {
+                    ...styles.input,
+                    color: 'black', // Adjust text color for dark mode
+                  },
+                  placeholder: {
+                    color: 'gray',
+                  },
+                  description: {
+                    color: 'black', // Text color for dropdown items
+                  },
+                }}
+                renderLeftButton={() => (
+                  <Image
+                    style={styles.searchIcon}
+                    source={require('../../../assets/images/search.png')}
+                  />
+                )}
+              />
+              <TouchableOpacity
+                style={{
+                  width: '80%',
+                  shadowColor: '#000',
+                  shadowOffset: {width: 0, height: 2},
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
+                  elevation: 5,
+                }}
+                onPress={getLocation}>
+                <View
+                  style={{
+                    backgroundColor: 'white',
+                    marginTop: 20,
+                    borderWidth: 1,
+                    flexDirection: 'row',
+                    borderColor: 'gray',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 10,
+                    borderRadius: 10,
+                    gap: 10,
+                  }}>
+                  {locationFetchingSpinnerState ? (
+                    <>
+                      <ActivityIndicator color={'black'} />
+                      <Text
+                        style={{color: 'black', fontFamily: 'Poppins-Regular'}}>
+                        Fetching Location
+                      </Text>
+                    </>
+                  ) : (
+                    <>
+                      <Image
+                        source={require('../../../assets/images/location-pin.png')}
+                        style={{
+                          width: 25,
+                          height: 25,
+                        }}
+                      />
+                      {latitude && longitude ? (
+                        <>
+                          <Text
+                            style={{
+                              fontFamily: 'Poppins-SemiBold',
+                              color: 'green',
+                            }}>
+                            Location Selected
+                          </Text>
+                        </>
+                      ) : (
+                        <>
+                          <Text style={{fontFamily: 'Poppins-SemiBold'}}>
+                            Select Current Location
+                          </Text>
+                        </>
+                      )}
+                    </>
+                  )}
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setIsStartModalVisible(false)}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Modal for End Address (Destination Address) */}
+        <Modal
+          visible={isEndModalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setIsEndModalVisible(false)}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Select Destination Address</Text>
+              <GooglePlacesAutocomplete
+                placeholder="Enter destination address"
+                onPress={handleEndPress}
+                query={{
+                  key: 'AIzaSyC8zy45f-dWZWg0P4A9mGAZjNlMYTnJRvI',
+                  language: 'en',
+                }}
+                fetchDetails={true}
+                onFail={error => console.error(error)}
+                styles={{
+                  textInputContainer: styles.inputContainer,
+                  textInput: {
+                    ...styles.input,
+                    color: 'black', // Adjust text color for dark mode
+                  },
+                  placeholder: {
+                    color: 'gray',
+                  },
+                  description: {
+                    color: 'black', // Text color for dropdown items
+                  },
+                }}
+                renderLeftButton={() => (
+                  <Image
+                    style={styles.searchIcon}
+                    source={require('../../../assets/images/search.png')}
+                  />
+                )}
+              />
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setIsEndModalVisible(false)}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal
+          visible={showUseCurrentLocationModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowUseCurrentLocationModal(false)}>
+          <View style={styles.modalContainer2}>
+            <View style={styles.modalContent2}>
+              <Text style={styles.modalText}>
+                Use current location as pickup address?
+              </Text>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalButton, {backgroundColor: 'red'}]}
+                  onPress={cancelUseCurrentLocation}>
+                  <Text style={styles.modalButtonText}>No</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, {backgroundColor: 'green'}]}
+                  onPress={confirmUseCurrentLocation}>
+                  <Text style={styles.modalButtonText}>Yes</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </ImageBackground>
     </SafeAreaView>
   );
@@ -416,5 +676,104 @@ const styles = StyleSheet.create({
     gap: 10,
     alignItems: 'center',
     backgroundColor: '#fff',
+  },
+
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '90%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    height: 400,
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#1B2024',
+    borderRadius: 10,
+    width: '90%',
+    alignItems: 'center',
+    color: '#fff',
+  },
+  closeButtonText: {
+    color: 'white',
+    fontFamily: 'Poppins-Medium',
+  },
+  modalTitle: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  fetchLocationButton: {
+    backgroundColor: '#1B2024',
+    borderRadius: 15,
+    padding: 10,
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  fetchLocationText: {
+    color: 'white',
+    fontFamily: 'Poppins-Medium',
+  },
+
+  addressButton: {
+    width: '100%',
+    borderWidth: 1,
+    padding: 12,
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    gap: 6,
+    alignItems: 'center',
+  },
+
+  addressText: {
+    fontFamily: 'Poppins-Medium',
+    color: 'black',
+    flexShrink: 1, // Allow text to shrink to fit
+    flex: 1, // Ensure text takes up available space
+    overflow: 'hidden', // Hide overflow text
+  },
+
+  modalContainer2: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+  },
+  modalContent2: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 30,
+    textAlign: 'center',
+    fontFamily: 'Poppins-SemiBold',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    paddingVertical: 7,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 15,
+    fontFamily: 'Poppins-Medium',
+    textAlign: 'center',
   },
 });

@@ -1,14 +1,30 @@
-import {useMutation} from '@tanstack/react-query';
-import {bookCab as bookCabApi} from '../service/ago';
+import { useMutation, UseMutationResult } from '@tanstack/react-query';
 import Snackbar from 'react-native-snackbar';
+import { bookCab as bookCabApi } from '../service/ago';
 
-const useBookCab = () => {
+interface CabDetails {
+  startLat: number | null;
+  startLong: number | null;
+  endLat: number | null;
+  endLong: number | null;
+  date: string;
+  time: string;
+  type: string;
+  model: string;
+  desc: string; // Change this to `string` instead of `String`
+}
+
+interface ApiResponse<T = any> {
+  data: T;
+}
+
+const useBookCab = (): UseMutationResult<ApiResponse, Error, CabDetails> => {
   return useMutation({
-    mutationFn: cabDetails => bookCabApi(cabDetails),
+    mutationFn: (cabDetails: CabDetails) => bookCabApi(cabDetails),
     onSuccess: data => {
-      console.log('cab booked');
+      console.log('Cab booked');
     },
-    onError: error => {
+    onError: (error: any) => {
       const message =
         error.response?.data?.message || 'An unexpected error occurred';
       Snackbar.show({
@@ -16,8 +32,9 @@ const useBookCab = () => {
         duration: Snackbar.LENGTH_SHORT,
         backgroundColor: 'red',
       });
-      console.log('Booking cab failed:', error);
-    },
+      console.error('Error details:', error.response?.data);
+    }
+    
   });
 };
 

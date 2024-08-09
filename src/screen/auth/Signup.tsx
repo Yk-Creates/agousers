@@ -1,18 +1,18 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Image,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
   KeyboardAvoidingView,
   Platform,
-  TouchableOpacity,
+  SafeAreaView,
   ScrollView,
+  StyleSheet,
+  Text,
   TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import useRegister from '../../hooks/useRegister';
 import Snackbar from 'react-native-snackbar';
+import useRegister from '../../hooks/useRegister';
 
 const SignUp = ({navigation}: any) => {
   const [name, setName] = useState('');
@@ -77,6 +77,7 @@ const SignUp = ({navigation}: any) => {
                 style={styles.input}
                 value={name}
                 onChangeText={setName}
+                
               />
             </View>
 
@@ -172,6 +173,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
     padding: 10,
     paddingHorizontal: 15,
+    color: 'black',
   },
   passwordContainer: {
     flexDirection: 'row',

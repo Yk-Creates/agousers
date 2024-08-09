@@ -1,30 +1,28 @@
-import React from 'react';
-import {Image, StyleSheet} from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
-  createStackNavigator,
   CardStyleInterpolators,
+  createStackNavigator,
 } from '@react-navigation/stack';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import React from 'react';
+import { Image, StyleSheet } from 'react-native';
 
-import Login from '../screen/auth/Login';
-import SignUp from '../screen/auth/Signup';
-import Landing from '../screen/landing/Landing';
-import Home from '../screen/tabs/home/Home';
-import LoginListener from '../screen/auth/LoginListener';
-import Ambulance from '../screen/tabs/ambulance/Ambulance';
-import Courier from '../screen/tabs/courier/Courier';
-import Profile from '../screen/tabs/profile/Profile';
-import cab from '../assets/images/cab.png';
 import ambulance from '../assets/images/ambulance.png';
+import cab from '../assets/images/cab.png';
 import courier from '../assets/images/courier.png';
 import profile from '../assets/images/profile.png';
-import ArrivalHome from '../screen/tabs/home/ArrivalHome';
-import CabPayment from '../screen/tabs/home/CabPayment';
+
+import Login from '../screen/auth/Login';
+import LoginListener from '../screen/auth/LoginListener';
+import SignUp from '../screen/auth/Signup';
+import Landing from '../screen/landing/Landing';
 import ActiveRequests from '../screen/profile/ActiveRequests';
 import ActiveRequestsDetails from '../screen/profile/ActiveRequestsDetails';
 import RequestsHistory from '../screen/profile/RequestsHistory';
 import ArrivalAmbluanceHome from '../screen/tabs/ambulance/ArrivalAmbluanceHome';
-import AmbulancePayment from '../screen/tabs/ambulance/AmbulancePayment';
+import Courier from '../screen/tabs/courier/Courier';
+import ArrivalHome from '../screen/tabs/home/ArrivalHome';
+import CabPayment from '../screen/tabs/home/CabPayment';
+import Profile from '../screen/tabs/profile/Profile';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -48,7 +46,6 @@ function HomeTabs() {
           } else if (route.name === 'Profile') {
             iconName = profile;
           }
-
           return (
             <Image
               source={iconName}
@@ -60,10 +57,10 @@ function HomeTabs() {
           );
         },
       })}>
-      <Tab.Screen name="Cab" component={Home} options={{headerShown: false}} />
+      <Tab.Screen name="Cab" component={ArrivalHome} options={{headerShown: false}} />
       <Tab.Screen
         name="Ambulance"
-        component={Ambulance}
+        component={ArrivalAmbluanceHome}
         options={{headerShown: false}}
       />
       <Tab.Screen
@@ -114,13 +111,6 @@ export default function AppNavigation() {
       <Stack.Screen
         name="arrival-ambulance-home"
         component={ArrivalAmbluanceHome}
-        options={{
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        }}
-      />
-      <Stack.Screen
-        name="ambulance-payment"
-        component={AmbulancePayment}
         options={{
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
         }}

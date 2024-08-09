@@ -1,10 +1,11 @@
 // api.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { ApiResponse, BookCabParams } from '../types';
 
 // Create an Axios instance
 const apiClient = axios.create({
-  baseURL: 'https://agobackend.onrender.com/api/v1',
+  baseURL: 'https://agobackend-m7ml.onrender.com/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -33,16 +34,7 @@ export const getRates = async () => {
   return response.data;
 };
 
-export const bookCab = async ({
-  startLat,
-  startLong,
-  endLat,
-  endLong,
-  date,
-  time,
-  type,
-  model,
-}: any) => {
+export const bookCab = async (params: BookCabParams): Promise<ApiResponse<any>> => {
   try {
     const token = await AsyncStorage.getItem('token');
 
@@ -50,29 +42,16 @@ export const bookCab = async ({
       throw new Error('Token is required');
     }
 
-    const response = await apiClient.post(
-      '/cab/bookcab',
-      {
-        startLat,
-        startLong,
-        endLat,
-        endLong,
-        date,
-        time,
-        type,
-        model,
+    const response = await apiClient.post('/cab/bookcab', params, {
+      headers: {
+        token: token,
       },
-      {
-        headers: {
-          token: token,
-        },
-      },
-    );
+    });
 
     return response.data;
   } catch (error) {
     console.error('Error booking cab:', error);
-    throw error; // Rethrow the error for the calling code to handle
+    throw error;
   }
 };
 
