@@ -5,7 +5,7 @@ import { ApiResponse, BookCabParams } from '../types';
 
 // Create an Axios instance
 const apiClient = axios.create({
-  baseURL: 'https://agobackend-m7ml.onrender.com/api/v1',
+  baseURL: 'https://agobackend-zg1h.onrender.com/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },

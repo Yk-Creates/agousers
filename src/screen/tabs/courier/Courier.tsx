@@ -56,6 +56,10 @@ const Courier = ({route, navigation}: any) => {
 
   const { mutate: bookCab, isPending, isSuccess } = useBookCab();
 
+  const dateString = typeof date === 'string' ? date : String(date);
+  const dateObj = new Date(dateString);
+  const formattedDate = dateObj.toLocaleDateString('en-GB');
+
   const handleStartPress = (
     data: GooglePlaceData,
     details: GooglePlaceDetail | null,
@@ -120,13 +124,16 @@ const Courier = ({route, navigation}: any) => {
       });
       return;
     }
+
+    const formattedDate = date.toISOString().slice(0, 10);
+    console.log(formattedDate);
   
     const cabDetails = {
       startLat: latitude,
       startLong: longitude,
       endLat: endLatitude,
       endLong: endLongitude,
-      date: date.toISOString(),
+      date: formattedDate,
       time: time.toLocaleTimeString('en-GB', {
         hour: '2-digit',
         minute: '2-digit',
@@ -807,6 +814,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalText: {
+    color: 'black',
     fontSize: 18,
     marginBottom: 30,
     textAlign: 'center',

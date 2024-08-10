@@ -480,7 +480,7 @@ const ArrivalAmbluanceHome = ({route, navigation}: any) => {
                         </>
                       ) : (
                         <>
-                          <Text style={{fontFamily: 'Poppins-SemiBold'}}>
+                          <Text style={{fontFamily: 'Poppins-SemiBold' ,  color: 'black',}}>
                             Select Current Location
                           </Text>
                         </>
@@ -709,6 +709,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
     fontSize: 18,
     marginBottom: 10,
+    color: '#5e5a5a',
   },
   fetchLocationButton: {
     backgroundColor: '#1B2024',
@@ -755,6 +756,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalText: {
+    color: 'black',
     fontSize: 18,
     marginBottom: 30,
     textAlign: 'center',
