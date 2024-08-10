@@ -54,7 +54,7 @@ const Courier = ({route, navigation}: any) => {
   const [isStartModalVisible, setIsStartModalVisible] = useState(false);
   const [isEndModalVisible, setIsEndModalVisible] = useState(false);
 
-  const { mutate: bookCab, isPending, isSuccess } = useBookCab();
+  const {mutate: bookCab, isPending, isSuccess} = useBookCab();
 
   const dateString = typeof date === 'string' ? date : String(date);
   const dateObj = new Date(dateString);
@@ -127,7 +127,7 @@ const Courier = ({route, navigation}: any) => {
 
     const formattedDate = date.toISOString().slice(0, 10);
     console.log(formattedDate);
-  
+
     const cabDetails = {
       startLat: latitude,
       startLong: longitude,
@@ -142,9 +142,9 @@ const Courier = ({route, navigation}: any) => {
       model: 'S',
       desc: courierDescription,
     };
-  
+
     console.log('Attempting to book courier with details:', cabDetails);
-  
+
     bookCab(cabDetails, {
       onSuccess: () => {
         console.log('Courier booked successfully');
@@ -165,8 +165,6 @@ const Courier = ({route, navigation}: any) => {
       },
     });
   };
-  
-  
 
   const confirmUseCurrentLocation = () => {
     setAddress('Current Location');
@@ -321,6 +319,7 @@ const Courier = ({route, navigation}: any) => {
               <TextInput
                 style={styles.descriptionText}
                 placeholder="Courier Description"
+                placeholderTextColor="gray" // Add this line to set the placeholder color
                 value={courierDescription}
                 onChangeText={text => setCourierDescription(text)}
               />
@@ -538,7 +537,11 @@ const Courier = ({route, navigation}: any) => {
                         </>
                       ) : (
                         <>
-                          <Text style={{fontFamily: 'Poppins-SemiBold' , color:'black'}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Poppins-SemiBold',
+                              color: 'black',
+                            }}>
                             Select Current Location
                           </Text>
                         </>
