@@ -21,7 +21,7 @@ import useGetCabRates from '../../../hooks/useGetCabRates';
 import Modal from 'react-native-modal';
 import Snackbar from 'react-native-snackbar';
 
-const CabPayment = ({route, navigation}) => {
+const CabPayment = ({route, navigation}:any) => {
   const {data, error, isLoading} = useGetCabRates();
   const {startLat, startLong, startAdd, endLat, endLong, endAdd, date, time} =
     route.params;
@@ -113,18 +113,22 @@ const CabPayment = ({route, navigation}) => {
       // Determine which image to use based on carType
       let cabImage;
       let cabModel;
+      let cardTitle;
       switch (carType.toLowerCase()) {
         case 'small':
           cabImage = smallCabImage;
           cabModel = 'S';
+          cardTitle = 'Mini';
           break;
         case 'medium':
           cabImage = mediumCabImage;
           cabModel = 'M';
+          cardTitle = 'Sedan';
           break;
         case 'large':
           cabImage = largeCabImage;
           cabModel = 'L';
+          cardTitle = 'SUV';
           break;
         default:
           cabImage = smallCabImage; // Default to small cab image
@@ -142,7 +146,7 @@ const CabPayment = ({route, navigation}) => {
           onPress={() => setSelectedCabModel(cabModel)} // Set selected cab model
         >
           <View>
-            <Text style={styles.cardTitle}>{carType.toUpperCase()}</Text>
+          <Text style={styles.cardTitle}>{cardTitle}</Text>
             <Text style={styles.cardText}>₹ {fare.toFixed(2)} (one way)</Text>
             <View style={styles.cardFooter}>
               <Image
