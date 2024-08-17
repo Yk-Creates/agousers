@@ -21,12 +21,27 @@ import {
 } from 'react-native-google-places-autocomplete';
 import Snackbar from 'react-native-snackbar';
 import useBookCab from '../../../hooks/useBookCab';
+import useSendSOS from '../../../hooks/useSendSOS';
+
+interface SOSRequest {
+  startLat: number;
+  startLong: number;
+  date: string;
+  time: string;
+  desc :string;
+  type: string;
+  model: string;
+  endLat : number,
+  endLong : number,
+}
 
 const ArrivalAmbluanceHome = ({route, navigation}: any) => {
   const [address, setAddress] = useState('');
 
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
+  const [SOSlatitude, setSOSLatitude] = useState<number | null>(null);
+  const [SOSlongitude, setSOSLongitude] = useState<number | null>(null);
   const [isLocationSelected, setIsLocationSelected] = useState(false);
 
   const [showUseCurrentLocationModal, setShowUseCurrentLocationModal] =
@@ -51,6 +66,9 @@ const ArrivalAmbluanceHome = ({route, navigation}: any) => {
 
   const [isStartModalVisible, setIsStartModalVisible] = useState(false);
   const [isEndModalVisible, setIsEndModalVisible] = useState(false);
+  const [isSOSSent, setIsSOSSent] = useState(false);
+
+  const {mutate: sendSOS, isLoading: isSendingSOS} = useSendSOS();
 
   const {mutate: bookCab, isPending, isSuccess} = useBookCab();
 
@@ -121,7 +139,7 @@ const ArrivalAmbluanceHome = ({route, navigation}: any) => {
       }),
       type: 'AMBULANCE',
       model: 'S',
-      desc:''
+      desc: '',
     };
 
     bookCab(cabDetails, {
@@ -195,9 +213,75 @@ const ArrivalAmbluanceHome = ({route, navigation}: any) => {
     );
   };
 
+  const handleSendSOS = () => {
+
+    if (SOSlatitude && SOSlongitude) {
+      const sosDetails: SOSRequest = {
+        startLat: SOSlatitude ?? 0,
+        startLong: SOSlongitude ?? 0,
+        endLat: SOSlatitude, // Assuming SOS is for the current location
+        endLong: SOSlongitude,
+        date: new Date().toISOString().split('T')[0], // Current date
+        time: new Date().toLocaleTimeString('en-GB', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }), // Current time
+        type: 'AMBULANCE',
+        model: 'S',
+        desc: 'Send Amb. Urgently',
+      };
+  
+      console.log(sosDetails);
+  
+      sendSOS(sosDetails, {
+        onSuccess: () => {
+          setIsSOSSent(true); // Set isSOSSent to true on success
+          Snackbar.show({
+            text: 'SOS sent successfully!',
+            duration: Snackbar.LENGTH_LONG,
+            backgroundColor: 'green',
+          });
+        },
+        onError: (error: any) => {
+          console.error('Error sending SOS:', error);
+          Snackbar.show({
+            text: 'Failed to send SOS!',
+            duration: Snackbar.LENGTH_LONG,
+            backgroundColor: 'red',
+          });
+        },
+      });
+    } else {
+      Snackbar.show({
+        text: 'Please wait for your location to be fetched.',
+        duration: Snackbar.LENGTH_LONG,
+        backgroundColor: 'red',
+      });
+    }
+  };
+  
+  // Auto-fetch location on component mount
   useEffect(() => {
+
+    Geolocation.getCurrentPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        console.log('Received location is :', latitude, longitude);
+
+        setSOSLatitude(latitude ?? 0);
+        setSOSLongitude(longitude ?? 0);
+        setLocationFetched(true);
+      },
+      error => {
+        console.error('Error fetching location:', error);
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    );
+
+
     requestLocationPermission();
   }, []);
+  
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -279,8 +363,8 @@ const ArrivalAmbluanceHome = ({route, navigation}: any) => {
                     isEndLocationSelected &&
                     isDateSelected &&
                     isTimeSelected
-                    ? '#1B2024'
-                    : '#ccc',
+                      ? '#1B2024'
+                      : '#ccc',
                 },
               ]}
               onPress={handleNavigation}
@@ -388,6 +472,64 @@ const ArrivalAmbluanceHome = ({route, navigation}: any) => {
               )}
             </View>
           </View>
+
+          {/* send this to SOS */}
+          <TouchableOpacity
+            style={{
+              width: '80%',
+              shadowColor: '#000',
+              shadowOffset: {width: 0, height: 2},
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              elevation: 5,
+            }}
+            onPress={handleSendSOS}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                marginTop: 20,
+                borderWidth: 1,
+                flexDirection: 'row',
+                borderColor: 'gray',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 10,
+                borderRadius: 10,
+                gap: 10,
+              }}>
+              {isSendingSOS ? (
+      <ActivityIndicator color={'black'} />
+    ) : isSOSSent ? (
+      <>
+          <Image
+          source={require('../../../assets/images/location-pin.png')}
+          style={{
+            width: 25,
+            height: 25,
+            tintColor: 'green',
+          }}
+          />
+        <Text style={{fontFamily: 'Poppins-SemiBold', color: 'green'}}>
+          SOS Sent
+        </Text>
+      </>
+    ) : (
+      <>
+        <Image
+          source={require('../../../assets/images/location-pin.png')}
+          style={{
+            width: 25,
+            height: 25,
+            tintColor: 'red',
+          }}
+        />
+        <Text style={{fontFamily: 'Poppins-SemiBold', color: 'red'}}>
+          SEND SOS
+        </Text>
+      </>
+    )}
+            </View>
+          </TouchableOpacity>
         </View>
 
         {/* Modal for Start Address (Arrival Address) */}
@@ -480,7 +622,11 @@ const ArrivalAmbluanceHome = ({route, navigation}: any) => {
                         </>
                       ) : (
                         <>
-                          <Text style={{fontFamily: 'Poppins-SemiBold' ,  color: 'black',}}>
+                          <Text
+                            style={{
+                              fontFamily: 'Poppins-SemiBold',
+                              color: 'black',
+                            }}>
                             Select Current Location
                           </Text>
                         </>

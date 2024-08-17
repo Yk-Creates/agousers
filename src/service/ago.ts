@@ -5,7 +5,7 @@ import { ApiResponse, BookCabParams } from '../types';
 
 // Create an Axios instance
 const apiClient = axios.create({
-  baseURL: 'https://agobackend-test.onrender.com/api/v1',
+  baseURL: 'https://agobackend-1.onrender.com/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -94,6 +94,28 @@ export const getRequestHistory = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching active requests:', error);
+    throw error;
+  }
+};
+
+
+export const sendSOS = async (startLat: number, startLong: number,endLat : number, endLong : number, date: string, time: string, desc: string, type: string, model: string) => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+
+    if (!token) {
+      throw new Error('Token is required');
+    }
+
+    const response = await apiClient.post('/cab/trigger-sos', { startLat, startLong, endLat, endLong , date, time, desc, type, model }, {
+      headers: {
+        token: token,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error sending SOS:', error);
     throw error;
   }
 };
